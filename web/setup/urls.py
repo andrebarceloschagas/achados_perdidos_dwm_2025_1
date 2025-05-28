@@ -15,8 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.http import HttpResponse
 
 urlpatterns = [
+    path('', lambda request: HttpResponse('API Achados & Perdidos - Django rodando!')),
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
 ]
+
+# The following line is a comment indicating where the 'api' app was created.
+# python3 manage.py startapp api

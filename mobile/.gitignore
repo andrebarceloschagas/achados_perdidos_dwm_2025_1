@@ -68,3 +68,24 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Arquivos de ambiente
+.env
+.env.*
+
+# Lockfiles alternativos
+pnpm-lock.yaml
+yarn.lock
+
+# Dumps e bancos locais de testes
+*.sqlite
+*.db
+*.localstorage
+
+# Arquivos de relatórios
+coverage/
+
+# Outros
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

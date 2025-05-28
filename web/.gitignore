@@ -17,6 +17,13 @@ __pycache__/
 # Arquivos de banco de dados SQLite
 *.sqlite3
 
+# Arquivos de banco de dados PostgreSQL
+*.psql
+*.pgdata
+*.pgsql
+*.dump
+*.backup
+
 # Arquivos de log
 *.log
 
@@ -44,7 +51,35 @@ htmlcov/
 *.swp
 *.swo
 .DS_Store
+Thumbs.db
 
 # Arquivos de configuração locais
 local_settings.py
 .env
+.env.*
+
+# Arquivos de backup e temporários
+*~
+*.bak
+*.tmp
+
+# Arquivos de build
+/build/
+/dist/
+
+# Arquivos de lock do pip
+Pipfile.lock
+poetry.lock
+
+# Arquivos de cache do pip
+pip-wheel-metadata/
+__pypackages__/
+
+# Arquivos de cache do coverage
+.cache
+
+# Arquivos de relatórios
+reports/
+
+# Arquivos de dump do banco
+*.sql
