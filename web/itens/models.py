@@ -1,0 +1,385 @@
+"""
+Modelos do sistema de Achados & Perdidos da UFT Palmas
+
+Este módulo contém os modelos de dados para gerenciar itens perdidos e encontrados
+no campus da Universidade Federal do Tocantins.
+"""
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+from django.urls import reverse
+
+# Choices para tipos de item
+TIPO_ITEM_CHOICES = [
+    ('perdido', 'Item Perdido'),
+    ('encontrado', 'Item Encontrado'),
+]
+
+# Choices para status do item
+STATUS_CHOICES = [
+    ('ativo', 'Ativo'),
+    ('resolvido', 'Resolvido'),
+    ('spam', 'Spam'),
+    ('expirado', 'Expirado'),
+]
+
+# Choices para blocos e locais da UFT Palmas
+BLOCO_CHOICES = [
+    ('bloco_1', 'Bloco 1 - Salas de Aula'),
+    ('bloco_2', 'Bloco 2 - Laboratórios'),
+    ('bloco_3', 'Bloco 3 - Administração'),
+    ('bloco_4', 'Bloco 4 - Biblioteca'),
+    ('bloco_5', 'Bloco 5 - Auditórios'),
+    ('biblioteca', 'Biblioteca Central'),
+    ('restaurante', 'Restaurante Universitário'),
+    ('quadra_esportes', 'Quadra de Esportes'),
+    ('ginasio', 'Ginásio Poliesportivo'),
+    ('estacionamento', 'Estacionamento'),
+    ('laboratorio_informatica', 'Laboratório de Informática'),
+    ('laboratorio_ciencias', 'Laboratório de Ciências'),
+    ('secretaria', 'Secretaria Acadêmica'),
+    ('coordenacao', 'Coordenação de Curso'),
+    ('diretoria', 'Diretoria do Campus'),
+    ('cantina', 'Cantina'),
+    ('area_convivencia', 'Área de Convivência'),
+    ('jardim', 'Jardim/Área Verde'),
+    ('portaria', 'Portaria'),
+    ('outro', 'Outro Local'),
+]
+
+# Choices para categorias de itens
+CATEGORIA_CHOICES = [
+    ('eletronicos', 'Eletrônicos'),
+    ('documentos', 'Documentos'),
+    ('roupas_acessorios', 'Roupas e Acessórios'),
+    ('livros_material', 'Livros e Material Escolar'),
+    ('chaves', 'Chaves'),
+    ('carteira_bolsa', 'Carteira/Bolsa'),
+    ('joias_bijuterias', 'Joias e Bijuterias'),
+    ('oculos', 'Óculos'),
+    ('equipamentos_esportivos', 'Equipamentos Esportivos'),
+    ('instrumentos_musicais', 'Instrumentos Musicais'),
+    ('medicamentos', 'Medicamentos'),
+    ('outros', 'Outros'),
+]
+
+class ItemManager(models.Manager):
+    """
+    Manager customizado para o modelo Item
+    """
+    def ativos(self):
+        """Retorna apenas itens ativos"""
+        return self.filter(status='ativo')
+    
+    def perdidos(self):
+        """Retorna apenas itens perdidos ativos"""
+        return self.filter(tipo='perdido', status='ativo')
+    
+    def encontrados(self):
+        """Retorna apenas itens encontrados ativos"""
+        return self.filter(tipo='encontrado', status='ativo')
+    
+    def recentes(self, limite=10):
+        """Retorna itens mais recentes"""
+        return self.filter(status='ativo').order_by('-data_postagem')[:limite]
+
+class Item(models.Model):
+    """
+    Modelo principal para itens perdidos e encontrados
+    """
+    # Informações básicas
+    titulo = models.CharField(
+        max_length=200, 
+        help_text="Título descritivo do item (ex: 'Celular Samsung Galaxy')"
+    )
+    descricao = models.TextField(
+        max_length=1000, 
+        help_text="Descrição detalhada do item (cor, marca, características distintivas)"
+    )
+    categoria = models.CharField(
+        max_length=30, 
+        choices=CATEGORIA_CHOICES, 
+        default='outros',
+        help_text="Categoria do item para facilitar a busca"
+    )
+    tipo = models.CharField(
+        max_length=10, 
+        choices=TIPO_ITEM_CHOICES,
+        help_text="Tipo do registro: item perdido ou encontrado"
+    )
+    
+    # Localização no campus
+    bloco = models.CharField(
+        max_length=30, 
+        choices=BLOCO_CHOICES,
+        help_text="Local onde o item foi perdido ou encontrado"
+    )
+    local_especifico = models.CharField(
+        max_length=200, 
+        blank=True, 
+        null=True,
+        help_text="Detalhes específicos do local (ex: 'Sala 101, 2º andar, próximo ao bebedouro')"
+    )
+    
+    # Imagem (comentado temporariamente - requer Pillow)
+    # foto = models.ImageField(
+    #     upload_to='itens/fotos/', 
+    #     blank=True, 
+    #     null=True,
+    #     help_text="Foto do item (opcional, mas recomendada)"
+    # )
+    
+    # Datas e timestamps
+    data_postagem = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Data e hora em que o item foi cadastrado no sistema"
+    )
+    data_ocorrencia = models.DateTimeField(
+        help_text="Data e hora aproximada em que o item foi perdido/encontrado"
+    )
+    data_atualizacao = models.DateTimeField(
+        auto_now=True,
+        help_text="Última atualização do registro"
+    )
+    
+    # Relacionamentos
+    usuario = models.ForeignKey(
+        User, 
+        related_name='itens_postados', 
+        on_delete=models.CASCADE,
+        help_text="Usuário que cadastrou o item"
+    )
+    
+    # Status e controle
+    status = models.CharField(
+        max_length=10, 
+        choices=STATUS_CHOICES, 
+        default='ativo',
+        help_text="Status atual do item"
+    )
+    resolvido_por = models.ForeignKey(
+        User, 
+        related_name='itens_resolvidos', 
+        on_delete=models.SET_NULL, 
+        blank=True, 
+        null=True,
+        help_text="Usuário que ajudou a resolver o caso"
+    )
+    data_resolucao = models.DateTimeField(
+        blank=True, 
+        null=True,
+        help_text="Data em que o item foi devolvido/recuperado"
+    )
+    
+    # Informações de contato
+    telefone_contato = models.CharField(
+        max_length=20, 
+        blank=True, 
+        null=True,
+        help_text="Telefone para contato (opcional)"
+    )
+    email_contato = models.EmailField(
+        blank=True, 
+        null=True,
+        help_text="Email para contato (opcional)"
+    )
+    
+    # Campos adicionais para melhor controle
+    visualizacoes = models.PositiveIntegerField(
+        default=0,
+        help_text="Número de visualizações do item"
+    )
+    prioridade = models.BooleanField(
+        default=False,
+        help_text="Marcar como prioritário (documentos importantes, medicamentos, etc.)"
+    )
+    
+    # Manager customizado
+    objects = ItemManager()
+    
+    class Meta:
+        ordering = ['-data_postagem']
+        verbose_name = 'Item'
+        verbose_name_plural = 'Itens'
+        indexes = [
+            models.Index(fields=['tipo', 'status']),
+            models.Index(fields=['categoria']),
+            models.Index(fields=['bloco']),
+            models.Index(fields=['-data_postagem']),
+        ]
+    
+    def __str__(self):
+        return f'{self.get_tipo_display()}: {self.titulo} - {self.get_bloco_display()}'
+    
+    def get_absolute_url(self):
+        """URL para visualizar o item"""
+        return reverse('detalhe-item', kwargs={'pk': self.pk})
+    
+    def is_perdido(self):
+        """Verifica se é um item perdido"""
+        return self.tipo == 'perdido'
+    
+    def is_encontrado(self):
+        """Verifica se é um item encontrado"""
+        return self.tipo == 'encontrado'
+    
+    def is_resolvido(self):
+        """Verifica se o item foi resolvido"""
+        return self.status == 'resolvido'
+    
+    def is_prioritario(self):
+        """Verifica se o item é prioritário"""
+        return self.prioridade
+    
+    def marcar_como_resolvido(self, usuario=None):
+        """Marca o item como resolvido"""
+        self.status = 'resolvido'
+        self.data_resolucao = timezone.now()
+        if usuario:
+            self.resolvido_por = usuario
+        self.save()
+    
+    def incrementar_visualizacoes(self):
+        """Incrementa o contador de visualizações"""
+        self.visualizacoes += 1
+        self.save(update_fields=['visualizacoes'])
+    
+    def dias_desde_postagem(self):
+        """Retorna quantos dias se passaram desde a postagem"""
+        return (timezone.now() - self.data_postagem).days
+    
+    def pode_editar(self, usuario):
+        """Verifica se o usuário pode editar este item"""
+        return self.usuario == usuario or usuario.is_staff
+
+class Comentario(models.Model):
+    """
+    Modelo para comentários em itens
+    """
+    item = models.ForeignKey(
+        Item, 
+        related_name='comentarios', 
+        on_delete=models.CASCADE
+    )
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    texto = models.TextField(
+        max_length=500,
+        help_text="Comentário sobre o item (informações adicionais, dicas, etc.)"
+    )
+    data_comentario = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['data_comentario']
+        verbose_name = 'Comentário'
+        verbose_name_plural = 'Comentários'
+    
+    def __str__(self):
+        return f'Comentário de {self.usuario.username} em {self.item.titulo}'
+
+class ReivindicacaoItem(models.Model):
+    """
+    Modelo para reivindicações de itens encontrados
+    """
+    item = models.ForeignKey(
+        Item, 
+        related_name='reivindicacoes', 
+        on_delete=models.CASCADE
+    )
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    justificativa = models.TextField(
+        max_length=500,
+        help_text="Explique por que este item é seu (detalhes que comprovem a propriedade)"
+    )
+    data_reivindicacao = models.DateTimeField(auto_now_add=True)
+    aprovada = models.BooleanField(default=False)
+    data_resposta = models.DateTimeField(blank=True, null=True)
+    observacoes_admin = models.TextField(
+        max_length=300,
+        blank=True,
+        null=True,
+        help_text="Observações da administração sobre a reivindicação"
+    )
+    
+    class Meta:
+        unique_together = ['item', 'usuario']
+        ordering = ['-data_reivindicacao']
+        verbose_name = 'Reivindicação de Item'
+        verbose_name_plural = 'Reivindicações de Itens'
+    
+    def __str__(self):
+        return f'{self.usuario.username} reivindica {self.item.titulo}'
+
+class PontoEncontro(models.Model):
+    """
+    Modelo para agendamento de pontos de encontro
+    """
+    item = models.ForeignKey(
+        Item, 
+        related_name='pontos_encontro', 
+        on_delete=models.CASCADE
+    )
+    usuario_solicitante = models.ForeignKey(
+        User, 
+        related_name='encontros_solicitados',
+        on_delete=models.CASCADE
+    )
+    usuario_postador = models.ForeignKey(
+        User, 
+        related_name='encontros_agendados',
+        on_delete=models.CASCADE
+    )
+    
+    local_encontro = models.CharField(
+        max_length=200,
+        help_text="Local específico para o encontro no campus"
+    )
+    data_encontro = models.DateTimeField(
+        help_text="Data e hora agendada para o encontro"
+    )
+    observacoes = models.TextField(
+        max_length=300, 
+        blank=True, 
+        null=True,
+        help_text="Observações adicionais sobre o encontro"
+    )
+    
+    confirmado_solicitante = models.BooleanField(default=False)
+    confirmado_postador = models.BooleanField(default=False)
+    realizado = models.BooleanField(default=False)
+    
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-data_encontro']
+        verbose_name = 'Ponto de Encontro'
+        verbose_name_plural = 'Pontos de Encontro'
+    
+    def __str__(self):
+        return f'Encontro para {self.item.titulo} - {self.data_encontro.strftime("%d/%m/%Y %H:%M")}'
+    
+    def is_confirmado(self):
+        """Verifica se ambas as partes confirmaram"""
+        return self.confirmado_solicitante and self.confirmado_postador
+
+# Modelo de compatibilidade (será removido em versões futuras)
+class Anuncio(models.Model):
+    """
+    Modelo antigo mantido para compatibilidade
+    DEPRECATED: Use o modelo Item
+    """
+    data = models.DateTimeField(auto_now_add=True)
+    descricao = models.CharField(max_length=200)
+    preco = models.DecimalField(decimal_places=2, max_digits=10)
+    usuario = models.ForeignKey(
+        User, 
+        related_name='anuncios_realizados', 
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'Anúncio (Legado)'
+        verbose_name_plural = 'Anúncios (Legado)'
+
+    def __str__(self):
+        return f'{self.data.strftime("%d/%m/%Y")} - {self.descricao} ({self.usuario})'

@@ -1,0 +1,87 @@
+# Sistema de Achados & Perdidos da UFT Palmas
+# Dependências do projeto
+
+# Framework principal
+Django>=4.2,<5.0
+
+# Banco de dados
+psycopg2-binary>=2.9.0  # PostgreSQL (produção)
+
+# Servidor de desenvolvimento
+gunicorn>=20.1.0
+
+# Manipulação de imagens
+Pillow>=9.0.0
+
+# Timezone
+pytz>=2023.3
+
+# Variáveis de ambiente
+python-decouple>=3.8
+
+# Validação de dados
+django-crispy-forms>=2.0
+
+# Bootstrap para Django
+crispy-bootstrap5>=0.7
+
+# Paginação avançada
+django-bootstrap-pagination>=1.7.1
+
+# Filtros avançados
+django-filter>=23.0
+
+# Autenticação social (opcional)
+django-allauth>=0.54.0
+
+# API REST (para futuras expansões)
+djangorestframework>=3.14.0
+
+# CORS headers (para API)
+django-cors-headers>=4.0.0
+
+# Compressão de arquivos estáticos
+django-compressor>=4.4
+
+# Cache Redis (opcional)
+django-redis>=5.3.0
+
+# Monitoramento e logs
+django-extensions>=3.2.0
+
+# Segurança adicional
+django-security>=0.17.0
+
+# Validação de email
+django-email-verification>=0.3.0
+
+# Geração de relatórios
+reportlab>=4.0.0
+
+# Exportação para Excel
+openpyxl>=3.1.0
+
+# Processamento de datas
+python-dateutil>=2.8.0
+
+# Validação de telefone brasileiro
+phonenumbers>=8.13.0
+
+# Slugify para URLs amigáveis
+python-slugify>=8.0.0
+
+# Markdown para documentação
+Markdown>=3.5.0
+
+# Testes
+coverage>=7.0.0
+factory-boy>=3.3.0
+
+# Desenvolvimento
+black>=23.0.0  # Formatação de código
+flake8>=6.0.0  # Linting
+isort>=5.12.0  # Organização de imports
+
+# Deploy
+whitenoise>=6.5.0  # Arquivos estáticos
+dj-database-url>=2.1.0  # URL do banco de dados

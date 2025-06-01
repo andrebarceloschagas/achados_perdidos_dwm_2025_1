@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ item.titulo }} - Achados & Perdidos{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+  <div class="col-lg-8">
+    <!-- Informações do item -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">{{ item.titulo }}</h4>
+        <span class="badge {% if item.tipo == 'perdido' %}badge-perdido{% else %}badge-encontrado{% endif %} fs-6">
+          {% if item.tipo == 'perdido' %}
+          <i class="bi bi-exclamation-triangle"></i> Item Perdido
+          {% else %}
+          <i class="bi bi-check-circle"></i> Item Encontrado
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="card-body">
+        {% if item.foto %}
+        <div class="text-center mb-4">
+          <img src="{{ item.foto.url }}" class="img-fluid rounded" style="max-height: 400px;" alt="{{ item.titulo }}">
+        </div>
+        {% endif %}
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong><i class="bi bi-tag"></i> Categoria:</strong>
+            <span class="badge bg-secondary">{{ item.get_categoria_display }}</span>
+          </div>
+          <div class="col-md-6">
+            <strong><i class="bi bi-geo-alt"></i> Local:</strong>
+            {{ item.get_bloco_display }}
+            {% if item.local_especifico %} - {{ item.local_especifico }}{% endif %}
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong><i class="bi bi-calendar"></i> Data da Ocorrência:</strong>
+            {{ item.data_ocorrencia|date:"d/m/Y H:i" }}
+          </div>
+          <div class="col-md-6">
+            <strong><i class="bi bi-clock"></i> Postado:</strong>
+            {{ item.data_postagem|date:"d/m/Y H:i" }}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <strong><i class="bi bi-file-text"></i> Descrição:</strong>
+          <p class="mt-2">{{ item.descricao|linebreaks }}</p>
+        </div>
+
+        {% if item.status == 'resolvido' %}
+        <div class="alert alert-success">
+          <i class="bi bi-check-circle"></i>
+          <strong>Item Resolvido!</strong>
+          {% if item.data_resolucao %}
+          Marcado como resolvido em {{ item.data_resolucao|date:"d/m/Y H:i" }}
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Comentários -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-chat-dots"></i>
+          Comentários ({{ comentarios.count }})
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if user.is_authenticated and item.status == 'ativo' %}
+        <!-- Formulário para novo comentário -->
+        <form method="post" action="{% url 'itens:adicionar-comentario' item.id %}" class="mb-4">
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ form_comentario.texto }}
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send"></i> Enviar Comentário
+          </button>
+        </form>
+        <hr>
+        {% endif %}
+
+        <!-- Lista de comentários -->
+        {% for comentario in comentarios %}
+        <div class="d-flex mb-3">
+          <div class="flex-shrink-0">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 40px; height: 40px;">
+              <i class="bi bi-person"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="d-flex justify-content-between">
+              <h6 class="mb-1">{{ comentario.usuario.first_name|default:comentario.usuario.username }}</h6>
+              <small class="text-muted">{{ comentario.data_comentario|timesince }} atrás</small>
+            </div>
+            <p class="mb-0">{{ comentario.texto|linebreaks }}</p>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted text-center">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <!-- Informações do usuário -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-person-circle"></i>
+          Postado por
+        </h5>
+      </div>
+      <div class="card-body text-center">
+        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+          style="width: 60px; height: 60px;">
+          <i class="bi bi-person" style="font-size: 1.5rem;"></i>
+        </div>
+        <h6>{{ item.usuario.first_name|default:item.usuario.username }}</h6>
+        <p class="text-muted small mb-3">
+          Membro desde {{ item.usuario.date_joined|date:"M/Y" }}
+        </p>
+
+        {% if item.telefone_contato or item.email_contato %}
+        <div class="border-top pt-3">
+          <h6 class="text-muted">Contato:</h6>
+          {% if item.telefone_contato %}
+          <p class="mb-1">
+            <i class="bi bi-telephone"></i>
+            <a href="tel:{{ item.telefone_contato }}">{{ item.telefone_contato }}</a>
+          </p>
+          {% endif %}
+          {% if item.email_contato %}
+          <p class="mb-0">
+            <i class="bi bi-envelope"></i>
+            <a href="mailto:{{ item.email_contato }}">{{ item.email_contato }}</a>
+          </p>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Ações -->
+    {% if user.is_authenticated and item.status == 'ativo' %}
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-gear"></i>
+          Ações
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if user == item.usuario %}
+        <!-- Ações do dono do item -->
+        <div class="d-grid gap-2">
+          <a href="{% url 'itens:editar-item' item.pk %}" class="btn btn-outline-primary">
+            <i class="bi bi-pencil"></i> Editar Item
+          </a>
+          <form method="post" action="{% url 'itens:marcar-resolvido' item.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success w-100"
+              onclick="return confirm('Tem certeza que deseja marcar este item como resolvido?')">
+              <i class="bi bi-check-circle"></i> Marcar como Resolvido
+            </button>
+          </form>
+          <a href="{% url 'itens:deletar-item' item.pk %}" class="btn btn-outline-danger">
+            <i class="bi bi-trash"></i> Excluir Item
+          </a>
+        </div>
+        {% else %}
+        <!-- Ações para outros usuários -->
+        <div class="d-grid gap-2">
+          {% if not ja_reivindicou %}
+          <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalReivindicacao">
+            <i class="bi bi-hand-index"></i>
+            {% if item.tipo == 'perdido' %}Este item é meu{% else %}Quero este item{% endif %}
+          </button>
+          {% else %}
+          <button class="btn btn-secondary" disabled>
+            <i class="bi bi-check"></i> Já reivindicado
+          </button>
+          {% endif %}
+
+          <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalPontoEncontro">
+            <i class="bi bi-geo-alt"></i> Agendar Encontro
+          </button>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Itens relacionados -->
+    {% if itens_relacionados %}
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-collection"></i>
+          Itens Relacionados
+        </h5>
+      </div>
+      <div class="card-body">
+        {% for item_relacionado in itens_relacionados %}
+        <div class="d-flex mb-3">
+          <div class="flex-shrink-0">
+            {% if item_relacionado.foto %}
+            <img src="{{ item_relacionado.foto.url }}" class="rounded"
+              style="width: 50px; height: 50px; object-fit: cover;" alt="{{ item_relacionado.titulo }}">
+            {% else %}
+            <div class="bg-light rounded d-flex align-items-center justify-content-center"
+              style="width: 50px; height: 50px;">
+              <i class="bi bi-image text-muted"></i>
+            </div>
+            {% endif %}
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <h6 class="mb-1">
+              <a href="{% url 'itens:detalhe-item' item_relacionado.pk %}" class="text-decoration-none">
+                {{ item_relacionado.titulo|truncatechars:30 }}
+              </a>
+            </h6>
+            <small class="text-muted">
+              <span
+                class="badge {% if item_relacionado.tipo == 'perdido' %}badge-perdido{% else %}badge-encontrado{% endif %} small">
+                {{ item_relacionado.get_tipo_display }}
+              </span>
+            </small>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modais -->
+{% if user.is_authenticated and item.status == 'ativo' and user != item.usuario %}
+<!-- Modal Reivindicação -->
+<div class="modal fade" id="modalReivindicacao" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-hand-index"></i>
+          Reivindicar Item
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'itens:reivindicar-item' item.id %}">
+        <div class="modal-body">
+          {% csrf_token %}
+          {{ form_reivindicacao.as_p }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning">
+            <i class="bi bi-hand-index"></i> Reivindicar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ponto de Encontro -->
+<div class="modal fade" id="modalPontoEncontro" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-geo-alt"></i>
+          Agendar Ponto de Encontro
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'itens:agendar-encontro' item.id %}">
+        <div class="modal-body">
+          {% csrf_token %}
+          {{ form_ponto_encontro.as_p }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-info">
+            <i class="bi bi-geo-alt"></i> Agendar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

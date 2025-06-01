@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar {{ object.titulo }} - Achados & Perdidos{% endblock %}
+
+{% block conteudo %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">
+          <i class="bi bi-pencil"></i>
+          Editar Item: {{ object.titulo }}
+        </h4>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Tipo do item -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <label class="form-label fw-bold">Tipo do Item *</label>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="card border-danger">
+                    <div class="card-body text-center">
+                      <input type="radio" class="btn-check" name="tipo" id="tipo_perdido" value="perdido" {% if
+                        form.tipo.value=='perdido' %}checked{% endif %} required>
+                      <label class="btn btn-outline-danger w-100" for="tipo_perdido">
+                        <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
+                        <strong>Item Perdido</strong>
+                        <br><small>Perdi algo e quero encontrar</small>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card border-success">
+                    <div class="card-body text-center">
+                      <input type="radio" class="btn-check" name="tipo" id="tipo_encontrado" value="encontrado" {% if
+                        form.tipo.value=='encontrado' %}checked{% endif %} required>
+                      <label class="btn btn-outline-success w-100" for="tipo_encontrado">
+                        <i class="bi bi-check-circle fs-1 d-block mb-2"></i>
+                        <strong>Item Encontrado</strong>
+                        <br><small>Encontrei algo e quero devolver</small>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informações básicas -->
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label for="{{ form.titulo.id_for_label }}" class="form-label fw-bold">Título *</label>
+              {{ form.titulo }}
+              {% if form.titulo.errors %}
+              <div class="text-danger small">{{ form.titulo.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.categoria.id_for_label }}" class="form-label fw-bold">Categoria *</label>
+              {{ form.categoria }}
+              {% if form.categoria.errors %}
+              <div class="text-danger small">{{ form.categoria.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Descrição -->
+          <div class="mb-3">
+            <label for="{{ form.descricao.id_for_label }}" class="form-label fw-bold">Descrição Detalhada *</label>
+            {{ form.descricao }}
+            <div class="form-text">
+              Descreva o item com o máximo de detalhes possível: cor, tamanho, marca, características especiais, etc.
+            </div>
+            {% if form.descricao.errors %}
+            <div class="text-danger small">{{ form.descricao.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Foto -->
+          <div class="mb-3">
+            <label for="{{ form.foto.id_for_label }}" class="form-label fw-bold">Foto do Item</label>
+            {{ form.foto }}
+            {% if object.foto %}
+            <div class="mt-2">
+              <img src="{{ object.foto.url }}" class="img-thumbnail" style="max-width: 200px;">
+              <p class="text-muted small">Foto atual</p>
+            </div>
+            {% endif %}
+            <div class="form-text">
+              Uma foto ajuda muito na identificação do item. Formatos aceitos: JPG, PNG (máx. 5MB)
+            </div>
+            {% if form.foto.errors %}
+            <div class="text-danger small">{{ form.foto.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Local -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="{{ form.bloco.id_for_label }}" class="form-label fw-bold">Bloco/Local *</label>
+              {{ form.bloco }}
+              {% if form.bloco.errors %}
+              <div class="text-danger small">{{ form.bloco.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="{{ form.local_especifico.id_for_label }}" class="form-label fw-bold">Local Específico</label>
+              {{ form.local_especifico }}
+              <div class="form-text">Ex: Sala 101, Biblioteca, Cantina, etc.</div>
+              {% if form.local_especifico.errors %}
+              <div class="text-danger small">{{ form.local_especifico.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Data da ocorrência -->
+          <div class="mb-3">
+            <label for="{{ form.data_ocorrencia.id_for_label }}" class="form-label fw-bold">Data da Ocorrência *</label>
+            {{ form.data_ocorrencia }}
+            <div class="form-text">Quando você perdeu ou encontrou o item?</div>
+            {% if form.data_ocorrencia.errors %}
+            <div class="text-danger small">{{ form.data_ocorrencia.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Status -->
+          <div class="mb-3">
+            <label for="{{ form.status.id_for_label }}" class="form-label fw-bold">Status *</label>
+            {{ form.status }}
+            <div class="form-text">Marque como "Resolvido" se o item foi encontrado/devolvido</div>
+            {% if form.status.errors %}
+            <div class="text-danger small">{{ form.status.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Informações de contato -->
+          <div class="card bg-light mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <i class="bi bi-telephone"></i>
+                Informações de Contato (Opcional)
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="{{ form.telefone_contato.id_for_label }}" class="form-label">Telefone</label>
+                  {{ form.telefone_contato }}
+                  {% if form.telefone_contato.errors %}
+                  <div class="text-danger small">{{ form.telefone_contato.errors }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label for="{{ form.email_contato.id_for_label }}" class="form-label">Email</label>
+                  {{ form.email_contato }}
+                  {% if form.email_contato.errors %}
+                  <div class="text-danger small">{{ form.email_contato.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-text">
+                <i class="bi bi-info-circle"></i>
+                Essas informações facilitam o contato direto. Se não preenchidas, o contato será feito através dos
+                comentários.
+              </div>
+            </div>
+          </div>
+
+          <!-- Botões -->
+          <div class="d-flex justify-content-between">
+            <a href="{% url 'itens:detalhe-item' object.pk %}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-check-circle"></i> Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

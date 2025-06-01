@@ -1,0 +1,347 @@
+# Sistema de Achados & Perdidos UFT Palmas - .gitignore
+
+# Arquivos de configuração sensíveis
+.env
+.env.local
+.env.production
+.env.staging
+
+# Banco de dados
+*.sqlite3
+*.db
+db.sqlite3
+
+# Arquivos de cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribuição / empacotamento
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Django específico
+staticfiles/
+static_collected/
+media/
+uploads/
+
+# Logs
+logs/
+*.log
+
+# Backup files
+*.bak
+*.backup
+*.sql
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Node.js (se usar npm/yarn para frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sass
+.sass-cache/
+*.css.map
+
+# Webpack
+webpack-stats.json
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# Lock files
+package-lock.json
+yarn.lock
+
+# Parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local configuration
+local_config.py
+local_settings.py
+
+# Migrations (opcional - descomente se não quiser versionar)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Fixtures com dados sensíveis
+fixtures/sensitive_data.json
+
+# Certificados SSL
+*.pem
+*.key
+*.crt
+*.csr
+
+# Backup automático
+auto_backup/
+backups/
+
+# Arquivos de desenvolvimento
+dev_notes.txt
+todo.txt
+.notes
+
+# Arquivos de deploy
+deploy_config.yml
+docker-compose.override.yml
+
+# Arquivos de monitoramento
+monitoring/
+metrics/
+
+# Cache do Redis
+dump.rdb
+
+# Arquivos de sessão
+django_session/
+
+# Arquivos de teste
+test_uploads/
+test_media/
+
+# Documentação gerada
+docs/build/
+docs/_build/
+
+# Relatórios
+reports/
+*.pdf
+*.xlsx
+*.csv
+
+# Arquivos de configuração do servidor
+nginx.conf
+apache.conf
+gunicorn.conf
+
+# Arquivos de script de deploy
+deploy.sh
+update.sh
+
+# Arquivos de configuração do Docker
+Dockerfile.local
+docker-compose.local.yml
+
+# Arquivos de configuração de CI/CD
+.github/workflows/local.yml
+.gitlab-ci.local.yml
+
+# Arquivos de profiling
+*.prof
+*.profile
+
+# Arquivos de debug
+debug/
+*.debug
+
+# Arquivos temporários do sistema
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Arquivos de configuração local do PyCharm
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+
+# Arquivos de configuração local do VSCode
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json

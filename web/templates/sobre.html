@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Sobre - Achados & Perdidos UFT Palmas{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title">
+          <i class="bi bi-info-circle text-primary"></i>
+          Sobre o Sistema
+        </h1>
+
+        <div class="row mt-4">
+          <div class="col-md-8">
+            <h3>Sistema de Achados & Perdidos</h3>
+            <p class="lead">
+              Plataforma digital desenvolvida para a disciplina Desenvolvimento Web/Mobile 2025/1. .
+            </p>
+
+            <h4>Objetivo</h4>
+            <p>
+              Conectar a comunidade acadêmica (estudantes, professores, técnicos administrativos e colaboradores terceirizados)
+              para facilitar a devolução de itens perdidos e encontrados no campus.
+            </p>
+
+            <h4>Como Funciona</h4>
+            <ol>
+              <li><strong>Cadastro:</strong> Registre itens perdidos ou encontrados com descrição detalhada.</li>
+              <li><strong>Busca:</strong> Use filtros para encontrar seu item ou navegar pelos disponíveis.</li>
+              <li><strong>Contato:</strong> Comunique-se através de comentários ou agende encontros.</li>
+              <li><strong>Resolução:</strong> Marque como resolvido quando o item for devolvido.</li>
+            </ol>
+
+            <h4>Recursos</h4>
+            <ul>
+              <li>Upload de fotos dos itens</li>
+              <li>Sistema de comentários</li>
+              <li>Agendamento de pontos de encontro</li>
+              <li>Notificações por email</li>
+              <li>Filtros por categoria, local e data</li>
+              <li>Painel administrativo para moderação</li>
+            </ul>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card bg-light">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi bi-building text-primary"></i>
+                  {{ universidade }}
+                </h5>
+                <p class="card-text">
+                  <strong>Campus:</strong> {{ campus }}<br>
+                  <strong>Sigla:</strong> {{ sigla }}
+                </p>
+
+                <hr>
+
+                <h6>Contato</h6>
+                <p class="small">
+                  <i class="bi bi-envelope"></i> contato@uft.edu.br<br>
+                  <i class="bi bi-telephone"></i> (63) 3229-4000<br>
+                  <i class="bi bi-geo-alt"></i> Quadra 109 Norte, Avenida NS-15, ALCNO-14<br>
+                  Palmas - TO, 77001-090
+                </p>
+              </div>
+            </div>
+
+            <div class="card bg-primary text-white mt-3">
+              <div class="card-body text-center">
+                <h6>Dicas de Segurança</h6>
+                <ul class="list-unstyled small">
+                  <li><i class="bi bi-check"></i> Encontre em locais públicos</li>
+                  <li><i class="bi bi-check"></i> Verifique a identidade</li>
+                  <li><i class="bi bi-check"></i> Prefira horários diurnos</li>
+                  <li><i class="bi bi-check"></i> Leve um acompanhante</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
