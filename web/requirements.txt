@@ -1,87 +1,81 @@
 # Sistema de Achados & Perdidos da UFT Palmas
-# Dependências do projeto
+# Dependências do projeto - Versões fixas
 
 # Framework principal
-Django>=4.2,<5.0
+Django
 
 # Banco de dados
-psycopg2-binary>=2.9.0  # PostgreSQL (produção)
+psycopg2-binary
 
 # Servidor de desenvolvimento
-gunicorn>=20.1.0
+gunicorn
 
 # Manipulação de imagens
-Pillow>=9.0.0
+Pillow
 
 # Timezone
-pytz>=2023.3
+pytz
 
 # Variáveis de ambiente
-python-decouple>=3.8
+python-decouple
 
 # Validação de dados
-django-crispy-forms>=2.0
+django-crispy-forms
 
 # Bootstrap para Django
-crispy-bootstrap5>=0.7
+crispy-bootstrap5
 
 # Paginação avançada
-django-bootstrap-pagination>=1.7.1
+django-bootstrap-pagination
 
 # Filtros avançados
-django-filter>=23.0
+django-filter
 
 # Autenticação social (opcional)
-django-allauth>=0.54.0
+django-allauth
 
 # API REST (para futuras expansões)
-djangorestframework>=3.14.0
+djangorestframework
 
 # CORS headers (para API)
-django-cors-headers>=4.0.0
+django-cors-headers
 
 # Compressão de arquivos estáticos
-django-compressor>=4.4
+django-compressor
 
-# Cache Redis (opcional)
-django-redis>=5.3.0
 
 # Monitoramento e logs
-django-extensions>=3.2.0
+django-extensions
 
 # Segurança adicional
-django-security>=0.17.0
+django-security
 
 # Validação de email
-django-email-verification>=0.3.0
+django-email-verification
 
 # Geração de relatórios
-reportlab>=4.0.0
+reportlab
 
 # Exportação para Excel
-openpyxl>=3.1.0
+openpyxl
 
 # Processamento de datas
-python-dateutil>=2.8.0
+python-dateutil
 
 # Validação de telefone brasileiro
-phonenumbers>=8.13.0
+phonenumbers
 
 # Slugify para URLs amigáveis
-python-slugify>=8.0.0
+python-slugify
 
 # Markdown para documentação
-Markdown>=3.5.0
+Markdown
 
 # Testes
-coverage>=7.0.0
-factory-boy>=3.3.0
+coverage
+factory-boy
 
 # Desenvolvimento
-black>=23.0.0  # Formatação de código
-flake8>=6.0.0  # Linting
-isort>=5.12.0  # Organização de imports
-
-# Deploy
-whitenoise>=6.5.0  # Arquivos estáticos
-dj-database-url>=2.1.0  # URL do banco de dados
+black
+flake8
+isort

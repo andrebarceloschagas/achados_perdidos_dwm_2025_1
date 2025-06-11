@@ -17,7 +17,7 @@ class FormularioItem(forms.ModelForm):
     class Meta:
         model = Item
         fields = [
-            'titulo', 'descricao', 'categoria', 'tipo', 'bloco', 
+            'titulo', 'descricao', 'foto', 'categoria', 'tipo', 'bloco', 
             'local_especifico', 'data_ocorrencia', 
             'telefone_contato', 'email_contato', 'prioridade'
         ]
@@ -30,6 +30,10 @@ class FormularioItem(forms.ModelForm):
                 'rows': 4,
                 'placeholder': 'Descreva o item com detalhes: cor, marca, características distintivas, etc.',
                 'class': 'form-control'
+            }),
+            'foto': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
             }),
             'categoria': forms.Select(attrs={'class': 'form-control'}),
             'tipo': forms.Select(attrs={'class': 'form-control'}),
@@ -55,6 +59,7 @@ class FormularioItem(forms.ModelForm):
         labels = {
             'titulo': 'Título do Item',
             'descricao': 'Descrição Detalhada',
+            'foto': 'Foto do Item',
             'categoria': 'Categoria',
             'tipo': 'Tipo de Registro',
             'bloco': 'Local no Campus',
@@ -67,6 +72,7 @@ class FormularioItem(forms.ModelForm):
         help_texts = {
             'titulo': 'Seja específico mas conciso',
             'descricao': 'Quanto mais detalhes, maior a chance de recuperação',
+            'foto': 'Uma foto ajuda muito na identificação (formatos aceitos: JPG, PNG - máx. 5MB)',
             'data_ocorrencia': 'Quando aproximadamente o item foi perdido/encontrado',
             'prioridade': 'Marque se for um item de extrema importância',
         }

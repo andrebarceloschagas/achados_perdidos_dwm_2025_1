@@ -1,0 +1,7 @@
+{
+  "name": "achados-perdidos-mobile",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

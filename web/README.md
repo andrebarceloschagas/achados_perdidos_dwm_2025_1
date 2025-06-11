@@ -75,6 +75,11 @@ python manage.py runserver
 
 O sistema estará disponível em `http://localhost:8000`
 
+5. **Execute os testes**
+```bash
+python manage.py test
+```
+
 ## Estrutura do Projeto WEB
 
 ```

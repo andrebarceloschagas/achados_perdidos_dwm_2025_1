@@ -3,7 +3,7 @@ Views do sistema de Achados & Perdidos da UFT Palmas
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -144,7 +144,7 @@ class CriarItem(LoginRequiredMixin, CreateView):
     model = Item
     form_class = FormularioItem
     template_name = 'itens/novo_item.html'
-    success_url = reverse_lazy('listar-itens')
+    success_url = reverse_lazy('itens:listar-itens')
     
     def form_valid(self, form):
         form.instance.usuario = self.request.user
@@ -181,7 +181,7 @@ class EditarItem(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse_lazy('detalhe-item', kwargs={'pk': self.object.pk})
+        return reverse_lazy('itens:detalhe-item', kwargs={'pk': self.object.pk})
 
 class DeletarItem(LoginRequiredMixin, DeleteView):
     """
@@ -189,7 +189,7 @@ class DeletarItem(LoginRequiredMixin, DeleteView):
     """
     model = Item
     template_name = 'itens/deletar_item.html'
-    success_url = reverse_lazy('listar-itens')
+    success_url = reverse_lazy('itens:listar-itens')
     
     def get_queryset(self):
         # Usuário só pode deletar seus próprios itens (ou staff)
@@ -220,7 +220,7 @@ def adicionar_comentario(request, item_id):
         else:
             messages.error(request, 'Erro ao adicionar comentário. Verifique os dados.')
     
-    return redirect('detalhe-item', pk=item_id)
+    return redirect('itens:detalhe-item', pk=item_id)
 
 @login_required
 def reivindicar_item(request, item_id):
@@ -232,7 +232,7 @@ def reivindicar_item(request, item_id):
     # Verificar se já reivindicou
     if item.reivindicacoes.filter(usuario=request.user).exists():
         messages.warning(request, 'Você já reivindicou este item.')
-        return redirect('detalhe-item', pk=item_id)
+        return redirect('itens:detalhe-item', pk=item_id)
     
     if request.method == 'POST':
         form = FormularioReivindicacao(request.POST)
@@ -248,7 +248,7 @@ def reivindicar_item(request, item_id):
         else:
             messages.error(request, 'Erro ao enviar reivindicação. Verifique os dados.')
     
-    return redirect('detalhe-item', pk=item_id)
+    return redirect('itens:detalhe-item', pk=item_id)
 
 @login_required
 def agendar_encontro(request, item_id):
@@ -272,7 +272,7 @@ def agendar_encontro(request, item_id):
         else:
             messages.error(request, 'Erro ao agendar encontro. Verifique os dados.')
     
-    return redirect('detalhe-item', pk=item_id)
+    return redirect('itens:detalhe-item', pk=item_id)
 
 @login_required
 def marcar_como_resolvido(request, item_id):
@@ -284,12 +284,12 @@ def marcar_como_resolvido(request, item_id):
     # Verificar permissão
     if item.usuario != request.user and not request.user.is_staff:
         messages.error(request, 'Você não tem permissão para esta ação.')
-        return redirect('detalhe-item', pk=item_id)
+        return redirect('itens:detalhe-item', pk=item_id)
     
     item.marcar_como_resolvido(request.user)
     messages.success(request, f'Item "{item.titulo}" marcado como resolvido!')
     
-    return redirect('detalhe-item', pk=item_id)
+    return redirect('itens:detalhe-item', pk=item_id)
 
 @login_required
 def meus_itens(request):
@@ -362,7 +362,7 @@ def aprovar_reivindicacao(request, pk):
     
     messages.success(request, 'Reivindicação aprovada e item marcado como resolvido!')
     
-    return redirect('reivindicacoes-recebidas')
+    return redirect('itens:reivindicacoes-recebidas')
 
 @login_required
 def rejeitar_reivindicacao(request, pk):
@@ -381,7 +381,7 @@ def rejeitar_reivindicacao(request, pk):
     
     messages.info(request, 'Reivindicação rejeitada.')
     
-    return redirect('reivindicacoes-recebidas')
+    return redirect('itens:reivindicacoes-recebidas')
 
 def itens_recentes_api(request):
     """
@@ -398,7 +398,7 @@ def itens_recentes_api(request):
             'categoria': item.get_categoria_display(),
             'bloco': item.get_bloco_display(),
             'data_postagem': item.data_postagem.strftime('%d/%m/%Y %H:%M'),
-            'url': reverse_lazy('detalhe-item', kwargs={'pk': item.pk})
+            'url': reverse('itens:detalhe-item', kwargs={'pk': item.pk})
         })
     
     return JsonResponse({'itens': data})
@@ -415,7 +415,7 @@ class CriarAnuncios(LoginObrigatorio, CreateView):
     model = Anuncio
     form_class = FormularioAnuncio
     template_name = 'itens/novo.html'
-    success_url = reverse_lazy('listar-anuncios')
+    success_url = reverse_lazy('itens:listar-anuncios')
     
     def form_valid(self, form):
         form.instance.usuario = self.request.user
@@ -426,10 +426,10 @@ class EditarAnuncios(LoginObrigatorio, UpdateView):
     model = Anuncio
     form_class = FormularioAnuncio
     template_name = 'itens/novo.html'
-    success_url = reverse_lazy('listar-anuncios')
+    success_url = reverse_lazy('itens:listar-anuncios')
 
 class DeletarAnuncio(LoginObrigatorio, DeleteView):
     """View de compatibilidade para deletar anúncios"""
     model = Anuncio
     template_name = 'itens/deletar_item.html'
-    success_url = reverse_lazy('listar-anuncios')
+    success_url = reverse_lazy('itens:listar-anuncios')

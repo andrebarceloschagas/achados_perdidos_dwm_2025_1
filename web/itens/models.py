@@ -26,25 +26,38 @@ STATUS_CHOICES = [
 
 # Choices para blocos e locais da UFT Palmas
 BLOCO_CHOICES = [
-    ('bloco_1', 'Bloco 1 - Salas de Aula'),
-    ('bloco_2', 'Bloco 2 - Laboratórios'),
-    ('bloco_3', 'Bloco 3 - Administração'),
-    ('bloco_4', 'Bloco 4 - Biblioteca'),
-    ('bloco_5', 'Bloco 5 - Auditórios'),
+    ('bloco_1', 'Bloco 1'),
+    ('bloco_2', 'Bloco 2'),
+    ('bloco_3', 'Bloco 3'),
+    ('bloco_a', 'Bloco A'),
+    ('bloco_b', 'Bloco B'),
+    ('bloco_c', 'Bloco C'),
+    ('bloco_d', 'Bloco D'),
+    ('bloco_e', 'Bloco E'),
+    ('bloco_f', 'Bloco F'),
+    ('bloco_g', 'Bloco G'),
+    ('bloco_h', 'Bloco H'),
+    ('bloco_i', 'Bloco I'),
+    ('bloco_j', 'Bloco J'),
+    ('calendoscopio', 'Calendoscópio/Jornalismo'),
     ('biblioteca', 'Biblioteca Central'),
-    ('restaurante', 'Restaurante Universitário'),
-    ('quadra_esportes', 'Quadra de Esportes'),
-    ('ginasio', 'Ginásio Poliesportivo'),
-    ('estacionamento', 'Estacionamento'),
-    ('laboratorio_informatica', 'Laboratório de Informática'),
-    ('laboratorio_ciencias', 'Laboratório de Ciências'),
+    ('restaurante_ru', 'RU - Restaurante Universitário'),
+    ('restaurante_fa', 'Restaurante Fazendinha'),
     ('secretaria', 'Secretaria Acadêmica'),
-    ('coordenacao', 'Coordenação de Curso'),
-    ('diretoria', 'Diretoria do Campus'),
-    ('cantina', 'Cantina'),
-    ('area_convivencia', 'Área de Convivência'),
-    ('jardim', 'Jardim/Área Verde'),
-    ('portaria', 'Portaria'),
+    ('coordenacao_ccomp', 'Coordenação de Curso Ciência da Computação'),
+    ('ca_ccomp', 'CA - Centro Acadêmico de Ciência da Computação'),
+    ('dojo', 'Dojô - Sala de Estudos'),
+    ('diretoria', 'Diretoria do Campus de Palmas'),
+    ('reitoria', 'Reitoria'),
+    ('lanchonete', 'Lanchonete'),
+    ('cuica', 'Cuica - CUICA'),
+    ('labtec', 'LabTec'),
+    ('prainha', 'Praianha'),
+    ('pista_campo', 'Pista de Corrida/Campo de Futebol'),
+    ('ponto_onibus', 'Ponto de Ônibus Principal'),
+    ('ponto_onibus_reitoria', 'Ponto de Ônibus Reitoria'),
+    ('ponto_onibus_j', 'Ponto de Ônibus Bloco J'),
+    ('ponto_onibus_jornalismo', 'Ponto de Ônibus Jornalismo'),
     ('outro', 'Outro Local'),
 ]
 
@@ -122,13 +135,13 @@ class Item(models.Model):
         help_text="Detalhes específicos do local (ex: 'Sala 101, 2º andar, próximo ao bebedouro')"
     )
     
-    # Imagem (comentado temporariamente - requer Pillow)
-    # foto = models.ImageField(
-    #     upload_to='itens/fotos/', 
-    #     blank=True, 
-    #     null=True,
-    #     help_text="Foto do item (opcional, mas recomendada)"
-    # )
+    # Imagem do item
+    foto = models.ImageField(
+        upload_to='itens/fotos/', 
+        blank=True, 
+        null=True,
+        help_text="Foto do item (opcional, mas recomendada)"
+    )
     
     # Datas e timestamps
     data_postagem = models.DateTimeField(
@@ -248,6 +261,22 @@ class Item(models.Model):
     def dias_desde_postagem(self):
         """Retorna quantos dias se passaram desde a postagem"""
         return (timezone.now() - self.data_postagem).days
+    
+    def tempo_desde_postagem(self):
+        """Retorna o tempo desde a postagem em formato legível"""
+        delta = timezone.now() - self.data_postagem
+        if delta.days > 0:
+            return f"{delta.days} dia{'s' if delta.days != 1 else ''}"
+        elif delta.seconds > 3600:
+            horas = delta.seconds // 3600
+            return f"{horas} hora{'s' if horas != 1 else ''}"
+        else:
+            minutos = delta.seconds // 60
+            return f"{minutos} minuto{'s' if minutos != 1 else ''}"
+    
+    def pode_ser_reivindicado(self):
+        """Verifica se o item pode ser reivindicado"""
+        return self.tipo == 'encontrado' and self.status == 'ativo'
     
     def pode_editar(self, usuario):
         """Verifica se o usuário pode editar este item"""
