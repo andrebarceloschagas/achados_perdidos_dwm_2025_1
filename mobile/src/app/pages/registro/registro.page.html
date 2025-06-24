@@ -1,0 +1,109 @@
+<ion-header [translucent]="true">
+    <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/login"></ion-back-button>
+        </ion-buttons>
+        <ion-title>
+            <ion-icon name="person-add-outline" style="margin-right: 8px;"></ion-icon>
+            Criar Conta
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+    <div class="registro-container">
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title class="ion-text-center">Registro de Usuário</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+                <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="registro-form">
+                    <!-- Nome de Usuário -->
+                    <ion-item>
+                        <ion-label position="floating">Nome de usuário *</ion-label>
+                        <ion-input type="text" formControlName="username"></ion-input>
+                    </ion-item>
+                    <ion-text color="danger"
+                        *ngIf="registroForm.get('username')?.invalid && registroForm.get('username')?.touched">
+                        <p class="error-message" *ngIf="registroForm.get('username')?.errors?.['required']">Nome de
+                            usuário é obrigatório</p>
+                        <p class="error-message" *ngIf="registroForm.get('username')?.errors?.['minlength']">Nome de
+                            usuário deve ter no mínimo 4 caracteres</p>
+                    </ion-text>
+
+                    <!-- Email -->
+                    <ion-item>
+                        <ion-label position="floating">Email *</ion-label>
+                        <ion-input type="email" formControlName="email"></ion-input>
+                    </ion-item>
+                    <ion-text color="danger"
+                        *ngIf="registroForm.get('email')?.invalid && registroForm.get('email')?.touched">
+                        <p class="error-message" *ngIf="registroForm.get('email')?.errors?.['required']">Email é
+                            obrigatório</p>
+                        <p class="error-message" *ngIf="registroForm.get('email')?.errors?.['email']">Email inválido</p>
+                    </ion-text>
+
+                    <!-- Primeiro Nome -->
+                    <ion-item>
+                        <ion-label position="floating">Primeiro Nome *</ion-label>
+                        <ion-input type="text" formControlName="first_name"></ion-input>
+                    </ion-item>
+                    <ion-text color="danger"
+                        *ngIf="registroForm.get('first_name')?.invalid && registroForm.get('first_name')?.touched">
+                        <p class="error-message">Primeiro nome é obrigatório</p>
+                    </ion-text>
+
+                    <!-- Sobrenome -->
+                    <ion-item>
+                        <ion-label position="floating">Sobrenome *</ion-label>
+                        <ion-input type="text" formControlName="last_name"></ion-input>
+                    </ion-item>
+                    <ion-text color="danger"
+                        *ngIf="registroForm.get('last_name')?.invalid && registroForm.get('last_name')?.touched">
+                        <p class="error-message">Sobrenome é obrigatório</p>
+                    </ion-text>
+
+                    <!-- Senha -->
+                    <ion-item>
+                        <ion-label position="floating">Senha *</ion-label>
+                        <ion-input [type]="hidePassword ? 'password' : 'text'" formControlName="password"></ion-input>
+                        <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility('password')">
+                            <ion-icon slot="icon-only"
+                                [name]="hidePassword ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+                        </ion-button>
+                    </ion-item>
+                    <ion-text color="danger"
+                        *ngIf="registroForm.get('password')?.invalid && registroForm.get('password')?.touched">
+                        <p class="error-message" *ngIf="registroForm.get('password')?.errors?.['required']">Senha é
+                            obrigatória</p>
+                        <p class="error-message" *ngIf="registroForm.get('password')?.errors?.['minlength']">Senha deve
+                            ter no mínimo 8 caracteres</p>
+                    </ion-text>
+
+                    <!-- Confirmação de Senha -->
+                    <ion-item>
+                        <ion-label position="floating">Confirmar Senha *</ion-label>
+                        <ion-input [type]="hidePasswordConfirm ? 'password' : 'text'"
+                            formControlName="password_confirm"></ion-input>
+                        <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility('confirm')">
+                            <ion-icon slot="icon-only"
+                                [name]="hidePasswordConfirm ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+                        </ion-button>
+                    </ion-item>
+                    <ion-text color="danger"
+                        *ngIf="registroForm.get('password_confirm')?.touched && registroForm.hasError('mismatch')">
+                        <p class="error-message">As senhas não coincidem</p>
+                    </ion-text>
+
+                    <div class="ion-padding-top">
+                        <ion-button expand="block" type="submit" [disabled]="registroForm.invalid || isSubmitting">
+                            <ion-icon slot="start" name="person-add-outline"></ion-icon>
+                            Criar Conta
+                            <ion-spinner name="dots" *ngIf="isSubmitting"></ion-spinner>
+                        </ion-button>
+                    </div>
+                </form>
+            </ion-card-content>
+        </ion-card>
+    </div>
+</ion-content>

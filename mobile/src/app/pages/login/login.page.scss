@@ -1,0 +1,42 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px;
+  height: 100%;
+  font-family: var(--ion-font-family);
+}
+
+.logo-container {
+  margin-top: 20px;
+}
+
+.logo {
+  max-width: 150px;
+  margin: 0 auto;
+}
+
+.error-message {
+  font-size: 0.8rem;
+  margin: 5px 0 0 10px;
+}
+
+ion-card {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+
+ion-card-title {
+  font-weight: 600;
+  font-family: var(--ion-font-family);
+}
+
+ion-item {
+  --border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+ion-button {
+  --border-radius: 5px;
+  margin-top: 10px;
+}

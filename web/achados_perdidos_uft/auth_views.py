@@ -10,6 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth import authenticate
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -17,20 +18,41 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     View customizada para obtenção de token JWT com informações adicionais
     """
     def post(self, request, *args, **kwargs):
-        # Chama a implementação original para validação e geração de tokens
-        response = super().post(request, *args, **kwargs)
-        
-        # Se a autenticação foi bem-sucedida, adiciona informações extras
-        if response.status_code == 200:
-            user = request.user
-            response.data.update({
-                'user_id': user.id,
-                'username': user.username,
-                'name': f"{user.first_name} {user.last_name}".strip() or user.username,
-                'is_staff': user.is_staff
-            })
-        
-        return response
+        # Usar a implementação padrão para validar e gerar tokens
+        try:
+            response = super().post(request, *args, **kwargs)
+            
+            # Se chegou aqui, o usuário foi autenticado com sucesso
+            # Agora vamos adicionar as informações extras
+            if response.status_code == 200:
+                # Obter o usuário a partir do nome de usuário fornecido
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                
+                username = request.data.get('username')
+                user = User.objects.get(username=username)
+                
+                # Adicionar informações extras ao token
+                response.data.update({
+                    'user_id': user.id,
+                    'username': user.username,
+                    'name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                    'is_staff': user.is_staff
+                })
+            
+            return response
+            
+        except Exception as e:
+            # Log do erro para debug
+            import logging
+            logger = logging.getLogger('achados_perdidos_uft')
+            logger.error(f"Erro na autenticação JWT: {str(e)}")
+            
+            # Retornar resposta de erro padronizada
+            return Response(
+                {"detail": "Credenciais inválidas."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
 
 class LogoutView(APIView):

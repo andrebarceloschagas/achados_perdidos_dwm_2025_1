@@ -1,0 +1,29 @@
+.registro-container {
+  padding: 16px;
+  font-family: var(--ion-font-family);
+}
+
+.error-message {
+  font-size: 0.8rem;
+  margin: 5px 0 0 10px;
+}
+
+ion-card {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+
+ion-card-title {
+  font-weight: 600;
+  font-family: var(--ion-font-family);
+}
+
+ion-item {
+  --border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+ion-button {
+  --border-radius: 5px;
+  margin-top: 10px;
+}

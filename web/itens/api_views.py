@@ -14,7 +14,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from itens.models import Item, Comentario, ContatoItem
 from itens.serializers import (
-    UserSerializer, UserDetailSerializer, ItemSerializer, 
+    UserSerializer, UserDetailSerializer, CreateUserSerializer, ItemSerializer, 
     ItemDetailSerializer, ComentarioSerializer, ContatoItemSerializer,
     TokenSerializer
 )
@@ -43,13 +43,34 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj == request.user
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """
-    API endpoint para listar e visualizar usuários
+    API endpoint para usuários:
+    - Criação de conta (sem autenticação)
+    - Listar/visualizar (com autenticação)
     """
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_serializer_class(self):
+        """
+        - Para criação de usuário: CreateUserSerializer
+        - Para visualização detalhada: UserDetailSerializer
+        - Para outros casos: UserSerializer
+        """
+        if self.action == 'create':
+            return CreateUserSerializer
+        elif self.action == 'retrieve':
+            return UserDetailSerializer
+        return UserSerializer
+    
+    def get_permissions(self):
+        """
+        - Para criar usuário (POST): AllowAny
+        - Para outras operações: IsAuthenticated
+        """
+        if self.action == 'create':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
     
     def get_serializer_class(self):
         if self.action == 'retrieve':
