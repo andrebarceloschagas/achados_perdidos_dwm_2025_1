@@ -14,10 +14,10 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
 
-from itens.models import Item, ReivindicacaoItem, Comentario, PontoEncontro, Anuncio
+from itens.models import Item, Comentario, Anuncio
 from itens.forms import (
-    FormularioItem, FormularioComentario, FormularioReivindicacao, 
-    FormularioPontoEncontro, FormularioFiltro, FormularioAnuncio
+    FormularioItem, FormularioComentario, 
+    FormularioFiltro, FormularioAnuncio
 )
 from achados_perdidos_uft.bibliotecas import LoginObrigatorio
 
@@ -117,17 +117,9 @@ class DetalheItem(DetailView):
         
         # Formulários para interação
         context['form_comentario'] = FormularioComentario()
-        context['form_reivindicacao'] = FormularioReivindicacao()
-        context['form_ponto_encontro'] = FormularioPontoEncontro()
         
         # Comentários do item
         context['comentarios'] = item.comentarios.select_related('usuario').order_by('data_comentario')
-        
-        # Verificar se usuário já reivindicou
-        if self.request.user.is_authenticated:
-            context['ja_reivindicou'] = item.reivindicacoes.filter(
-                usuario=self.request.user
-            ).exists()
         
         # Itens similares
         context['itens_similares'] = Item.objects.filter(
@@ -222,57 +214,9 @@ def adicionar_comentario(request, item_id):
     
     return redirect('itens:detalhe-item', pk=item_id)
 
-@login_required
-def reivindicar_item(request, item_id):
-    """
-    View para reivindicar um item encontrado
-    """
-    item = get_object_or_404(Item, pk=item_id, tipo='encontrado', status='ativo')
-    
-    # Verificar se já reivindicou
-    if item.reivindicacoes.filter(usuario=request.user).exists():
-        messages.warning(request, 'Você já reivindicou este item.')
-        return redirect('itens:detalhe-item', pk=item_id)
-    
-    if request.method == 'POST':
-        form = FormularioReivindicacao(request.POST)
-        if form.is_valid():
-            reivindicacao = form.save(commit=False)
-            reivindicacao.item = item
-            reivindicacao.usuario = request.user
-            reivindicacao.save()
-            messages.success(
-                request, 
-                'Reivindicação enviada! O responsável pelo item será notificado.'
-            )
-        else:
-            messages.error(request, 'Erro ao enviar reivindicação. Verifique os dados.')
-    
-    return redirect('itens:detalhe-item', pk=item_id)
 
-@login_required
-def agendar_encontro(request, item_id):
-    """
-    View para agendar ponto de encontro
-    """
-    item = get_object_or_404(Item, pk=item_id, status='ativo')
-    
-    if request.method == 'POST':
-        form = FormularioPontoEncontro(request.POST)
-        if form.is_valid():
-            encontro = form.save(commit=False)
-            encontro.item = item
-            encontro.usuario_solicitante = request.user
-            encontro.usuario_postador = item.usuario
-            encontro.save()
-            messages.success(
-                request, 
-                'Ponto de encontro agendado! O responsável pelo item será notificado.'
-            )
-        else:
-            messages.error(request, 'Erro ao agendar encontro. Verifique os dados.')
-    
-    return redirect('itens:detalhe-item', pk=item_id)
+
+
 
 @login_required
 def marcar_como_resolvido(request, item_id):
@@ -312,76 +256,13 @@ def meus_itens(request):
     
     return render(request, 'itens/meus_itens.html', context)
 
-@login_required
-def minhas_reivindicacoes(request):
-    """
-    View para listar reivindicações do usuário
-    """
-    reivindicacoes = ReivindicacaoItem.objects.filter(
-        usuario=request.user
-    ).select_related('item').order_by('-data_reivindicacao')
-    
-    context = {
-        'reivindicacoes': reivindicacoes,
-    }
-    
-    return render(request, 'itens/minhas_reivindicacoes.html', context)
 
-@login_required
-def reivindicacoes_recebidas(request):
-    """
-    View para listar reivindicações recebidas nos itens do usuário
-    """
-    reivindicacoes = ReivindicacaoItem.objects.filter(
-        item__usuario=request.user
-    ).select_related('item', 'usuario').order_by('-data_reivindicacao')
-    
-    context = {
-        'reivindicacoes': reivindicacoes,
-    }
-    
-    return render(request, 'itens/reivindicacoes_recebidas.html', context)
 
-@login_required
-def aprovar_reivindicacao(request, pk):
-    """
-    View para aprovar uma reivindicação
-    """
-    reivindicacao = get_object_or_404(
-        ReivindicacaoItem, 
-        pk=pk, 
-        item__usuario=request.user
-    )
-    
-    reivindicacao.aprovada = True
-    reivindicacao.data_resposta = timezone.now()
-    reivindicacao.save()
-    
-    # Marcar item como resolvido
-    reivindicacao.item.marcar_como_resolvido(reivindicacao.usuario)
-    
-    messages.success(request, 'Reivindicação aprovada e item marcado como resolvido!')
-    
-    return redirect('itens:reivindicacoes-recebidas')
 
-@login_required
-def rejeitar_reivindicacao(request, pk):
-    """
-    View para rejeitar uma reivindicação
-    """
-    reivindicacao = get_object_or_404(
-        ReivindicacaoItem, 
-        pk=pk, 
-        item__usuario=request.user
-    )
-    
-    reivindicacao.aprovada = False
-    reivindicacao.data_resposta = timezone.now()
-    reivindicacao.save()
-    
-    messages.info(request, 'Reivindicação rejeitada.')
-    
-    return redirect('itens:reivindicacoes-recebidas')
+
+
+
+
 
 def itens_recentes_api(request):
     """

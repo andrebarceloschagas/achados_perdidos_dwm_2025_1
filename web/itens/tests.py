@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
 
-from itens.models import Item, Comentario, ReivindicacaoItem
+from itens.models import Item, Comentario
 from itens.forms import FormularioItem, FormularioComentario
 
 
@@ -67,22 +67,7 @@ class ItemModelTest(TestCase):
         self.assertIsInstance(tempo, str)
         self.assertTrue(len(tempo) > 0)
     
-    def test_pode_ser_reivindicado_perdido(self):
-        """Testa que item perdido não pode ser reivindicado"""
-        self.assertFalse(self.item.pode_ser_reivindicado())
-    
-    def test_pode_ser_reivindicado_encontrado(self):
-        """Testa que item encontrado pode ser reivindicado"""
-        item_encontrado = Item.objects.create(
-            titulo='Chaves',
-            descricao='Chaves encontradas',
-            categoria='chaves',
-            tipo='encontrado',
-            bloco='bloco_1',
-            data_ocorrencia=timezone.now(),
-            usuario=self.usuario
-        )
-        self.assertTrue(item_encontrado.pode_ser_reivindicado())
+
 
 
 class ComentarioModelTest(TestCase):
@@ -117,42 +102,7 @@ class ComentarioModelTest(TestCase):
         self.assertEqual(str(self.comentario), expected)
 
 
-class ReivindicacaoModelTest(TestCase):
-    """Testes unitários para o modelo ReivindicacaoItem"""
-    
-    def setUp(self):
-        self.usuario1 = User.objects.create_user(username='user1', password='pass')
-        self.usuario2 = User.objects.create_user(username='user2', password='pass')
-        
-        self.item = Item.objects.create(
-            titulo='Item Encontrado',
-            descricao='Item para teste',
-            categoria='outros',
-            tipo='encontrado',
-            bloco='bloco_1',
-            data_ocorrencia=timezone.now(),
-            usuario=self.usuario1
-        )
-        
-        self.reivindicacao = ReivindicacaoItem.objects.create(
-            item=self.item,
-            usuario=self.usuario2,
-            justificativa='Este item é meu'
-        )
-    
-    def test_criacao_reivindicacao(self):
-        """Testa criação de reivindicação"""
-        self.assertEqual(self.reivindicacao.item, self.item)
-        self.assertEqual(self.reivindicacao.usuario, self.usuario2)
-        # Como o modelo pode ter valores padrão, verificar o tipo correto
-        self.assertIsInstance(self.reivindicacao.aprovada, (bool, type(None)))
-        self.assertIsNone(self.reivindicacao.data_resposta)
-    
-    def test_str_representation(self):
-        """Testa representação string da reivindicação"""
-        # Usando a representação real do modelo
-        expected = f"{self.usuario2.username} reivindica {self.item.titulo}"
-        self.assertEqual(str(self.reivindicacao), expected)
+
 
 
 class FormularioItemTest(TestCase):

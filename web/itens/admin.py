@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils import timezone
-from itens.models import Item, Comentario, ReivindicacaoItem, PontoEncontro, Anuncio
+from itens.models import Item, Comentario, Anuncio
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
@@ -147,108 +147,9 @@ class ComentarioAdmin(admin.ModelAdmin):
         return obj.texto[:50] + '...' if len(obj.texto) > 50 else obj.texto
     texto_resumido.short_description = 'Comentário'
 
-@admin.register(ReivindicacaoItem)
-class ReivindicacaoItemAdmin(admin.ModelAdmin):
-    """
-    Configuração do admin para reivindicações
-    """
-    list_display = [
-        'item_link', 'usuario', 'data_reivindicacao', 
-        'aprovada_badge', 'data_resposta'
-    ]
-    list_filter = ['aprovada', 'data_reivindicacao', 'data_resposta']
-    search_fields = [
-        'item__titulo', 'usuario__username', 'justificativa'
-    ]
-    readonly_fields = ['data_reivindicacao']
-    date_hierarchy = 'data_reivindicacao'
-    
-    fieldsets = (
-        ('Reivindicação', {
-            'fields': ('item', 'usuario', 'justificativa', 'data_reivindicacao')
-        }),
-        ('Resposta da Administração', {
-            'fields': ('aprovada', 'data_resposta', 'observacoes_admin')
-        }),
-    )
-    
-    actions = ['aprovar_reivindicacao', 'rejeitar_reivindicacao']
-    
-    def item_link(self, obj):
-        """Link para o item reivindicado"""
-        url = reverse('admin:itens_item_change', args=[obj.item.pk])
-        return format_html('<a href="{}">{}</a>', url, obj.item.titulo)
-    item_link.short_description = 'Item'
-    
-    def aprovada_badge(self, obj):
-        """Badge para status da aprovação"""
-        if obj.aprovada:
-            return format_html(
-                '<span class="badge" style="background-color: #28a745; color: white;">Aprovada</span>'
-            )
-        elif obj.data_resposta:
-            return format_html(
-                '<span class="badge" style="background-color: #dc3545; color: white;">Rejeitada</span>'
-            )
-        else:
-            return format_html(
-                '<span class="badge" style="background-color: #ffc107; color: black;">Pendente</span>'
-            )
-    aprovada_badge.short_description = 'Status'
-    
-    def aprovar_reivindicacao(self, request, queryset):
-        """Ação para aprovar reivindicações"""
-        count = queryset.update(aprovada=True, data_resposta=timezone.now())
-        self.message_user(request, f'{count} reivindicações aprovadas.')
-    aprovar_reivindicacao.short_description = "Aprovar reivindicação"
-    
-    def rejeitar_reivindicacao(self, request, queryset):
-        """Ação para rejeitar reivindicações"""
-        count = queryset.update(aprovada=False, data_resposta=timezone.now())
-        self.message_user(request, f'{count} reivindicações rejeitadas.')
-    rejeitar_reivindicacao.short_description = "Rejeitar reivindicação"
 
-@admin.register(PontoEncontro)
-class PontoEncontroAdmin(admin.ModelAdmin):
-    """
-    Configuração do admin para pontos de encontro
-    """
-    list_display = [
-        'item_link', 'usuario_solicitante', 'usuario_postador', 
-        'data_encontro', 'status_encontro', 'realizado'
-    ]
-    list_filter = [
-        'realizado', 'confirmado_solicitante', 'confirmado_postador', 
-        'data_encontro', 'data_criacao'
-    ]
-    search_fields = [
-        'item__titulo', 'usuario_solicitante__username', 
-        'usuario_postador__username', 'local_encontro'
-    ]
-    readonly_fields = ['data_criacao']
-    date_hierarchy = 'data_encontro'
-    
-    def item_link(self, obj):
-        """Link para o item do encontro"""
-        url = reverse('admin:itens_item_change', args=[obj.item.pk])
-        return format_html('<a href="{}">{}</a>', url, obj.item.titulo)
-    item_link.short_description = 'Item'
-    
-    def status_encontro(self, obj):
-        """Status do encontro"""
-        if obj.realizado:
-            return format_html(
-                '<span class="badge" style="background-color: #28a745; color: white;">Realizado</span>'
-            )
-        elif obj.is_confirmado():
-            return format_html(
-                '<span class="badge" style="background-color: #007bff; color: white;">Confirmado</span>'
-            )
-        else:
-            return format_html(
-                '<span class="badge" style="background-color: #ffc107; color: black;">Pendente</span>'
-            )
-    status_encontro.short_description = 'Status'
+
+
 
 # Admin para modelo de compatibilidade
 @admin.register(Anuncio)

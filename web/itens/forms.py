@@ -5,7 +5,7 @@ Formulários do sistema de Achados & Perdidos da UFT Palmas
 from django import forms
 from django.contrib.auth.models import User
 from itens.models import (
-    Item, Comentario, ReivindicacaoItem, PontoEncontro, Anuncio,
+    Item, Comentario, Anuncio,
     TIPO_ITEM_CHOICES, CATEGORIA_CHOICES, BLOCO_CHOICES, STATUS_CHOICES
 )
 
@@ -125,76 +125,9 @@ class FormularioComentario(forms.ModelForm):
             raise forms.ValidationError('O comentário deve ter pelo menos 10 caracteres.')
         return texto.strip()
 
-class FormularioReivindicacao(forms.ModelForm):
-    """
-    Formulário para reivindicar um item encontrado
-    """
-    
-    class Meta:
-        model = ReivindicacaoItem
-        fields = ['justificativa']
-        widgets = {
-            'justificativa': forms.Textarea(attrs={
-                'rows': 4,
-                'placeholder': 'Descreva detalhes que comprovem que este item é seu: características específicas, onde perdeu, quando, etc.',
-                'class': 'form-control'
-            })
-        }
-        labels = {
-            'justificativa': 'Por que este item é seu?'
-        }
-        help_texts = {
-            'justificativa': 'Seja específico: mencione detalhes que só o dono saberia'
-        }
-    
-    def clean_justificativa(self):
-        """Validação para justificativa detalhada"""
-        justificativa = self.cleaned_data.get('justificativa')
-        if len(justificativa.strip()) < 30:
-            raise forms.ValidationError('A justificativa deve ser mais detalhada (mínimo 30 caracteres).')
-        return justificativa.strip()
 
-class FormularioPontoEncontro(forms.ModelForm):
-    """
-    Formulário para agendar ponto de encontro
-    """
-    
-    class Meta:
-        model = PontoEncontro
-        fields = ['local_encontro', 'data_encontro', 'observacoes']
-        widgets = {
-            'local_encontro': forms.Select(choices=[
-                ('biblioteca', 'Biblioteca Central - Entrada Principal'),
-                ('restaurante', 'Restaurante Universitário - Entrada'),
-                ('bloco_1', 'Bloco 1 - Hall de Entrada'),
-                ('bloco_2', 'Bloco 2 - Recepção'),
-                ('bloco_3', 'Bloco 3 - Secretaria'),
-                ('portaria', 'Portaria Principal'),
-                ('area_convivencia', 'Área de Convivência'),
-                ('outro', 'Outro Local (especificar nas observações)'),
-            ], attrs={'class': 'form-control'}),
-            'data_encontro': forms.DateTimeInput(attrs={
-                'type': 'datetime-local',
-                'class': 'form-control'
-            }),
-            'observacoes': forms.Textarea(attrs={
-                'rows': 3,
-                'placeholder': 'Observações adicionais sobre o encontro (opcional)',
-                'class': 'form-control'
-            })
-        }
-        labels = {
-            'local_encontro': 'Local do Encontro',
-            'data_encontro': 'Data e Hora',
-            'observacoes': 'Observações'
-        }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Definir data mínima como agora
-        import datetime
-        now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M')
-        self.fields['data_encontro'].widget.attrs['min'] = now
+
+
 
 class FormularioFiltro(forms.Form):
     """

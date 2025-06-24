@@ -274,9 +274,7 @@ class Item(models.Model):
             minutos = delta.seconds // 60
             return f"{minutos} minuto{'s' if minutos != 1 else ''}"
     
-    def pode_ser_reivindicado(self):
-        """Verifica se o item pode ser reivindicado"""
-        return self.tipo == 'encontrado' and self.status == 'ativo'
+
     
     def pode_editar(self, usuario):
         """Verifica se o usuário pode editar este item"""
@@ -306,90 +304,9 @@ class Comentario(models.Model):
     def __str__(self):
         return f'Comentário de {self.usuario.username} em {self.item.titulo}'
 
-class ReivindicacaoItem(models.Model):
-    """
-    Modelo para reivindicações de itens encontrados
-    """
-    item = models.ForeignKey(
-        Item, 
-        related_name='reivindicacoes', 
-        on_delete=models.CASCADE
-    )
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    justificativa = models.TextField(
-        max_length=500,
-        help_text="Explique por que este item é seu (detalhes que comprovem a propriedade)"
-    )
-    data_reivindicacao = models.DateTimeField(auto_now_add=True)
-    aprovada = models.BooleanField(default=False)
-    data_resposta = models.DateTimeField(blank=True, null=True)
-    observacoes_admin = models.TextField(
-        max_length=300,
-        blank=True,
-        null=True,
-        help_text="Observações da administração sobre a reivindicação"
-    )
-    
-    class Meta:
-        unique_together = ['item', 'usuario']
-        ordering = ['-data_reivindicacao']
-        verbose_name = 'Reivindicação de Item'
-        verbose_name_plural = 'Reivindicações de Itens'
-    
-    def __str__(self):
-        return f'{self.usuario.username} reivindica {self.item.titulo}'
 
-class PontoEncontro(models.Model):
-    """
-    Modelo para agendamento de pontos de encontro
-    """
-    item = models.ForeignKey(
-        Item, 
-        related_name='pontos_encontro', 
-        on_delete=models.CASCADE
-    )
-    usuario_solicitante = models.ForeignKey(
-        User, 
-        related_name='encontros_solicitados',
-        on_delete=models.CASCADE
-    )
-    usuario_postador = models.ForeignKey(
-        User, 
-        related_name='encontros_agendados',
-        on_delete=models.CASCADE
-    )
-    
-    local_encontro = models.CharField(
-        max_length=200,
-        help_text="Local específico para o encontro no campus"
-    )
-    data_encontro = models.DateTimeField(
-        help_text="Data e hora agendada para o encontro"
-    )
-    observacoes = models.TextField(
-        max_length=300, 
-        blank=True, 
-        null=True,
-        help_text="Observações adicionais sobre o encontro"
-    )
-    
-    confirmado_solicitante = models.BooleanField(default=False)
-    confirmado_postador = models.BooleanField(default=False)
-    realizado = models.BooleanField(default=False)
-    
-    data_criacao = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['-data_encontro']
-        verbose_name = 'Ponto de Encontro'
-        verbose_name_plural = 'Pontos de Encontro'
-    
-    def __str__(self):
-        return f'Encontro para {self.item.titulo} - {self.data_encontro.strftime("%d/%m/%Y %H:%M")}'
-    
-    def is_confirmado(self):
-        """Verifica se ambas as partes confirmaram"""
-        return self.confirmado_solicitante and self.confirmado_postador
+
+
 
 # Modelo de compatibilidade (será removido em versões futuras)
 class Anuncio(models.Model):
