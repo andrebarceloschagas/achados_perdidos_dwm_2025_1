@@ -52,6 +52,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'achados_perdidos_uft.context_processors.notificacoes_usuario',
             ],
         },
     },

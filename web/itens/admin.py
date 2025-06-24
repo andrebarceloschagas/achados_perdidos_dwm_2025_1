@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils import timezone
-from itens.models import Item, Comentario
+from itens.models import Item, Comentario, ContatoItem
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
@@ -128,30 +128,43 @@ class ItemAdmin(admin.ModelAdmin):
 @admin.register(Comentario)
 class ComentarioAdmin(admin.ModelAdmin):
     """
-    Configuração do admin para comentários
+    Configuração do admin para o modelo Comentario
     """
-    list_display = ['item_link', 'usuario', 'data_comentario', 'texto_resumido']
+    list_display = ['item', 'usuario', 'texto_truncado', 'data_comentario']
     list_filter = ['data_comentario']
     search_fields = ['texto', 'usuario__username', 'item__titulo']
-    readonly_fields = ['data_comentario']
-    date_hierarchy = 'data_comentario'
     
-    def item_link(self, obj):
-        """Link para o item comentado"""
-        url = reverse('admin:itens_item_change', args=[obj.item.pk])
-        return format_html('<a href="{}">{}</a>', url, obj.item.titulo)
-    item_link.short_description = 'Item'
+    def texto_truncado(self, obj):
+        """Retornar versão truncada do texto do comentário"""
+        max_length = 50
+        text = obj.texto
+        if len(text) > max_length:
+            return f"{text[:max_length]}..."
+        return text
+    texto_truncado.short_description = "Comentário"
+
+
+@admin.register(ContatoItem)
+class ContatoItemAdmin(admin.ModelAdmin):
+    """
+    Configuração do admin para o modelo ContatoItem
+    """
+    list_display = ['item', 'usuario_interessado', 'mensagem_truncada', 'data_contato', 'visualizado']
+    list_filter = ['data_contato', 'visualizado']
+    search_fields = ['mensagem', 'usuario_interessado__username', 'item__titulo']
+    readonly_fields = ['data_contato']
+    list_editable = ['visualizado']
     
-    def texto_resumido(self, obj):
-        """Texto resumido do comentário"""
-        return obj.texto[:50] + '...' if len(obj.texto) > 50 else obj.texto
-    texto_resumido.short_description = 'Comentário'
+    def mensagem_truncada(self, obj):
+        """Retornar versão truncada da mensagem"""
+        max_length = 50
+        text = obj.mensagem
+        if len(text) > max_length:
+            return f"{text[:max_length]}..."
+        return text
+    mensagem_truncada.short_description = "Mensagem"
 
 
-
-
-
-# Admin para modelo de compatibilidade
 # Fim das classes de administração
 
 # Customizações gerais do admin

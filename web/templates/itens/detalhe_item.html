@@ -131,7 +131,8 @@
           Membro desde {{ item.usuario.date_joined|date:"M/Y" }}
         </p>
 
-        {% if item.telefone_contato or item.email_contato %}
+        {% if user == item.usuario or contato_existente %}
+        <!-- Mostrar informações de contato para o próprio usuário ou quem já fez contato -->
         <div class="border-top pt-3">
           <h6 class="text-muted">Contato:</h6>
           {% if item.telefone_contato %}
@@ -146,6 +147,21 @@
             <a href="mailto:{{ item.email_contato }}">{{ item.email_contato }}</a>
           </p>
           {% endif %}
+          {% if not item.telefone_contato and not item.email_contato %}
+          <p class="text-center text-muted small">
+            <i class="bi bi-info-circle"></i> O proprietário não forneceu informações de contato.
+            <br>Use os comentários para se comunicar.
+          </p>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if contato_existente %}
+        <div class="alert alert-success mt-3">
+          <i class="bi bi-check-circle"></i>
+          <strong>Contato realizado!</strong>
+          <p class="small mb-0">Você já entrou em contato sobre este item em {{
+            contato_existente.data_contato|date:"d/m/Y H:i" }}</p>
         </div>
         {% endif %}
       </div>
@@ -181,8 +197,11 @@
         {% else %}
         <!-- Ações para outros usuários -->
         <div class="d-grid gap-2">
-          <!-- Sem ações disponíveis -->
-          <p class="text-center text-muted small">Utilize os comentários para se comunicar com o responsável pelo item.
+          <a href="{% url 'itens:contato-direto' item.id %}" class="btn btn-primary">
+            <i class="bi bi-envelope"></i> Entrar em Contato
+          </a>
+          <p class="text-center text-muted small mt-2">
+            O contato direto permite comunicação mais rápida com o responsável pelo item.
           </p>
         </div>
         {% endif %}

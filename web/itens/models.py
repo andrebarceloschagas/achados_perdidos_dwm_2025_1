@@ -279,6 +279,11 @@ class Item(models.Model):
     def pode_editar(self, usuario):
         """Verifica se o usuário pode editar este item"""
         return self.usuario == usuario or usuario.is_staff
+    
+    def contatos_nao_lidos(self):
+        """Retorna o número de contatos não lidos para este item"""
+        return self.contatos.filter(visualizado=False).count()
+
 
 class Comentario(models.Model):
     """
@@ -303,3 +308,33 @@ class Comentario(models.Model):
     
     def __str__(self):
         return f'Comentário de {self.usuario.username} em {self.item.titulo}'
+
+
+class ContatoItem(models.Model):
+    """
+    Modelo para registrar contatos diretos entre usuários interessados e proprietários de itens
+    """
+    item = models.ForeignKey(
+        Item,
+        related_name='contatos',
+        on_delete=models.CASCADE
+    )
+    usuario_interessado = models.ForeignKey(
+        User,
+        related_name='contatos_realizados',
+        on_delete=models.CASCADE
+    )
+    mensagem = models.TextField(
+        max_length=500,
+        help_text="Mensagem para o proprietário do item"
+    )
+    data_contato = models.DateTimeField(auto_now_add=True)
+    visualizado = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-data_contato']
+        verbose_name = 'Contato'
+        verbose_name_plural = 'Contatos'
+        
+    def __str__(self):
+        return f'Contato de {self.usuario_interessado.username} sobre {self.item.titulo}'

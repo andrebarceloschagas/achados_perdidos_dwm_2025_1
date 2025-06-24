@@ -5,7 +5,7 @@ Formulários do sistema de Achados & Perdidos da UFT Palmas
 from django import forms
 from django.contrib.auth.models import User
 from itens.models import (
-    Item, Comentario,
+    Item, Comentario, ContatoItem,
     TIPO_ITEM_CHOICES, CATEGORIA_CHOICES, BLOCO_CHOICES, STATUS_CHOICES
 )
 
@@ -248,5 +248,21 @@ class FormularioRegistroUsuario(forms.ModelForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('Este email já está em uso.')
         return email
+
+
+class FormularioContato(forms.ModelForm):
+    """
+    Formulário para entrar em contato com o proprietário do item
+    """
+    class Meta:
+        model = ContatoItem
+        fields = ['mensagem']
+        widgets = {
+            'mensagem': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Explique por que você está interessado neste item ou como pode ajudar.'
+            }),
+        }
 
 # Fim do arquivo

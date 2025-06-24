@@ -73,10 +73,19 @@
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                 <i class="bi bi-person-circle"></i> Meus Itens
+                {% if total_contatos_nao_lidos > 0 %}
+                <span class="badge bg-danger rounded-pill">{{ total_contatos_nao_lidos }}</span>
+                {% endif %}
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{% url 'itens:meus-itens' %}">
                     <i class="bi bi-list"></i> Meus Posts
+                  </a></li>
+                <li><a class="dropdown-item" href="{% url 'itens:contatos-recebidos' %}">
+                    <i class="bi bi-envelope"></i> Contatos Recebidos
+                    {% if total_contatos_nao_lidos > 0 %}
+                    <span class="badge bg-danger rounded-pill">{{ total_contatos_nao_lidos }}</span>
+                    {% endif %}
                   </a></li>
               </ul>
             </li>

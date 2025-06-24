@@ -24,8 +24,11 @@
                 <div class="col-md-6">
                   <div class="card border-danger">
                     <div class="card-body text-center">
-                      <input type="radio" class="btn-check" name="tipo" id="tipo_perdido" value="perdido" {% if
-                        form.tipo.value=='perdido' %}checked{% endif %} required>
+                      {% if form.tipo.value == 'perdido' %}
+                        <input type="radio" class="btn-check" name="tipo" id="tipo_perdido" value="perdido" checked required>
+                      {% else %}
+                        <input type="radio" class="btn-check" name="tipo" id="tipo_perdido" value="perdido" required>
+                      {% endif %}
                       <label class="btn btn-outline-danger w-100" for="tipo_perdido">
                         <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
                         <strong>Item Perdido</strong>
@@ -37,8 +40,11 @@
                 <div class="col-md-6">
                   <div class="card border-success">
                     <div class="card-body text-center">
-                      <input type="radio" class="btn-check" name="tipo" id="tipo_encontrado" value="encontrado" {% if
-                        form.tipo.value=='encontrado' %}checked{% endif %} required>
+                      {% if form.tipo.value == 'encontrado' %}
+                        <input type="radio" class="btn-check" name="tipo" id="tipo_encontrado" value="encontrado" checked required>
+                      {% else %}
+                        <input type="radio" class="btn-check" name="tipo" id="tipo_encontrado" value="encontrado" required>
+                      {% endif %}
                       <label class="btn btn-outline-success w-100" for="tipo_encontrado">
                         <i class="bi bi-check-circle fs-1 d-block mb-2"></i>
                         <strong>Item Encontrado</strong>

@@ -14,10 +14,10 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
 
-from itens.models import Item, Comentario
+from itens.models import Item, Comentario, ContatoItem
 from itens.forms import (
     FormularioItem, FormularioComentario, 
-    FormularioFiltro
+    FormularioFiltro, FormularioContato
 )
 from achados_perdidos_uft.bibliotecas import LoginObrigatorio
 
@@ -120,6 +120,18 @@ class DetalheItem(DetailView):
         
         # Comentários do item
         context['comentarios'] = item.comentarios.select_related('usuario').order_by('data_comentario')
+        
+        # Verificar se o usuário atual já fez contato
+        if self.request.user.is_authenticated:
+            context['contato_existente'] = ContatoItem.objects.filter(
+                item=item,
+                usuario_interessado=self.request.user
+            ).first()
+            
+            # Se já fez contato, marcar como visualizado
+            if context['contato_existente'] and not context['contato_existente'].visualizado:
+                context['contato_existente'].visualizado = True
+                context['contato_existente'].save()
         
         # Itens similares
         context['itens_similares'] = Item.objects.filter(
@@ -273,5 +285,84 @@ def itens_recentes_api(request):
         })
     
     return JsonResponse({'itens': data})
+
+
+@login_required
+def contatos_recebidos(request):
+    """
+    View para listar todos os contatos recebidos nos itens do usuário
+    """
+    # Buscar todos os itens do usuário
+    itens_usuario = Item.objects.filter(usuario=request.user)
+    
+    # Buscar todos os contatos relacionados a esses itens
+    contatos = ContatoItem.objects.filter(item__in=itens_usuario).select_related(
+        'item', 'usuario_interessado'
+    ).order_by('-data_contato')
+    
+    # Marcar contatos não visualizados como visualizados
+    contatos_nao_visualizados = contatos.filter(visualizado=False)
+    if contatos_nao_visualizados.exists():
+        contatos_nao_visualizados.update(visualizado=True)
+    
+    # Paginação
+    paginator = Paginator(contatos, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'contatos': page_obj,
+        'total_contatos': contatos.count(),
+        'contatos_nao_visualizados': contatos_nao_visualizados.count(),
+    }
+    
+    return render(request, 'itens/contatos_recebidos.html', context)
+
+
+@login_required
+def contato_direto(request, item_id):
+    """
+    View para entrar em contato direto com o proprietário do item
+    """
+    item = get_object_or_404(Item, pk=item_id)
+    
+    # Verificar que o usuário não é o dono do item
+    if item.usuario == request.user:
+        messages.warning(request, 'Você não pode entrar em contato consigo mesmo.')
+        return redirect('itens:detalhe-item', pk=item_id)
+    
+    # Verificar se já existe um contato deste usuário para este item
+    contato_existente = ContatoItem.objects.filter(
+        item=item,
+        usuario_interessado=request.user
+    ).exists()
+    
+    if contato_existente:
+        messages.info(request, 'Você já entrou em contato com o proprietário deste item.')
+        return redirect('itens:detalhe-item', pk=item_id)
+    
+    if request.method == 'POST':
+        form = FormularioContato(request.POST)
+        if form.is_valid():
+            contato = form.save(commit=False)
+            contato.item = item
+            contato.usuario_interessado = request.user
+            contato.save()
+            
+            messages.success(
+                request,
+                'Seu interesse foi registrado! As informações de contato foram reveladas.'
+            )
+            return redirect('itens:detalhe-item', pk=item_id)
+    else:
+        form = FormularioContato()
+    
+    context = {
+        'form': form,
+        'item': item
+    }
+    
+    return render(request, 'itens/contato_direto.html', context)
+
 
 # Fim do arquivo

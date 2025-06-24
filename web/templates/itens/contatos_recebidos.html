@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Contatos Recebidos - Achados & Perdidos{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+    <h2 class="mb-4">
+        <i class="bi bi-envelope"></i> Contatos Recebidos
+    </h2>
+
+    {% if contatos %}
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-bar-chart"></i>
+                        Resumo
+                    </h5>
+                    <div class="row text-center">
+                        <div class="col-md-6 mb-2">
+                            <div class="display-6">{{ total_contatos }}</div>
+                            <div class="text-muted">Total de contatos</div>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <div class="display-6">{{ contatos_nao_visualizados }}</div>
+                            <div class="text-muted">Novos contatos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Dica:</strong> Estes são contatos de pessoas interessadas nos seus itens.
+                Responda assim que possível para ajudar a resolver esses casos.
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de contatos -->
+    <div class="list-group mb-4">
+        {% for contato in contatos %}
+        <div class="list-group-item {% if not contato.visualizado %}list-group-item-primary{% endif %}">
+            <div class="d-flex w-100 justify-content-between align-items-center">
+                <h5 class="mb-1">
+                    {% if not contato.visualizado %}
+                    <span class="badge bg-primary me-1">Novo</span>
+                    {% endif %}
+                    Contato sobre:
+                    <a href="{% url 'itens:detalhe-item' contato.item.pk %}" class="text-decoration-none">
+                        {{ contato.item.titulo }}
+                    </a>
+                </h5>
+                <small>{{ contato.data_contato|date:"d/m/Y H:i" }}</small>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-8">
+                    <p class="mb-1"><strong>Mensagem:</strong> {{ contato.mensagem }}</p>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                            style="width: 30px; height: 30px;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0">
+                                <strong>Por:</strong> {{
+                                contato.usuario_interessado.first_name|default:contato.usuario_interessado.username }}
+                                {% if contato.usuario_interessado.email %}
+                                - <a href="mailto:{{ contato.usuario_interessado.email }}">
+                                    <i class="bi bi-envelope-fill"></i> {{ contato.usuario_interessado.email }}
+                                </a>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header py-2">Informações do Item</div>
+                        <div class="card-body py-2">
+                            <p class="mb-1"><small>
+                                    <i class="bi bi-tag"></i> {{ contato.item.get_categoria_display }}
+                                </small></p>
+                            <p class="mb-1"><small>
+                                    <i class="bi bi-geo-alt"></i> {{ contato.item.get_bloco_display }}
+                                </small></p>
+                            <p class="mb-0"><small>
+                                    <span
+                                        class="badge {% if contato.item.tipo == 'perdido' %}bg-danger{% else %}bg-success{% endif %}">
+                                        {{ contato.item.get_tipo_display }}
+                                    </span>
+                                </small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <a href="{% url 'itens:detalhe-item' contato.item.pk %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-eye"></i> Ver Item
+                </a>
+
+                {% if contato.usuario_interessado.email %}
+                <a href="mailto:{{ contato.usuario_interessado.email }}" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-reply"></i> Responder por Email
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginação -->
+    {% if contatos.paginator.num_pages > 1 %}
+    <nav aria-label="Paginação de contatos">
+        <ul class="pagination justify-content-center">
+            {% if contatos.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="Primeira">
+                    <i class="bi bi-chevron-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ contatos.previous_page_number }}" aria-label="Anterior">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">Página {{ contatos.number }} de {{ contatos.paginator.num_pages }}</span>
+            </li>
+
+            {% if contatos.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ contatos.next_page_number }}" aria-label="Próxima">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ contatos.paginator.num_pages }}" aria-label="Última">
+                    <i class="bi bi-chevron-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Nenhum contato recebido ainda.</strong> Quando alguém demonstrar interesse em um dos seus itens, você
+        verá aqui.
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-3">
+        <a href="{% url 'itens:meus-itens' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar para Meus Itens
+        </a>
+    </div>
+</div>
+{% endblock %}
