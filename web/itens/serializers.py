@@ -20,6 +20,57 @@ class TokenSerializer(serializers.Serializer):
     blacklisted = serializers.BooleanField(read_only=True)
 
 
+class CreateUserSerializer(serializers.ModelSerializer):
+    """
+    Serializer para criar novos usuários com tratamento adequado da senha
+    """
+    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    password_confirm = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password', 'password_confirm', 'first_name', 'last_name']
+        read_only_fields = ['id']
+        
+    def validate(self, data):
+        """
+        Verifica se as senhas coincidem
+        """
+        if data['password'] != data['password_confirm']:
+            raise serializers.ValidationError({"password_confirm": "As senhas não coincidem."})
+        return data
+    
+    def create(self, validated_data):
+        """
+        Cria e retorna um novo usuário com senha criptografada
+        """
+        # Remove o campo password_confirm
+        validated_data.pop('password_confirm')
+        
+        # Extrair os campos necessários
+        username = validated_data['username']
+        email = validated_data.get('email', '')
+        password = validated_data.get('password')
+        first_name = validated_data.get('first_name', '')
+        last_name = validated_data.get('last_name', '')
+        
+        # Usar create_user que já trata corretamente a senha
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+        
+        # Log de criação (para depuração)
+        import logging
+        logger = logging.getLogger('achados_perdidos_uft')
+        logger.info(f'Novo usuário API criado: {username} ({email})')
+        
+        return user
+
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer para o modelo User do Django"""
     
