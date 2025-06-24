@@ -7,9 +7,7 @@ from itens.views import (
     # Views principais para achados e perdidos
     ListarItens, DetalheItem, CriarItem, EditarItem, DeletarItem,
     adicionar_comentario, marcar_como_resolvido, meus_itens,
-    itens_recentes_api,
-    # Views de compatibilidade (legado)
-    ListarAnuncios, CriarAnuncios, DeletarAnuncio, EditarAnuncios
+    itens_recentes_api
 )
 
 app_name = 'itens'
@@ -31,10 +29,4 @@ urlpatterns = [
     
     # API endpoints
     path('api/recentes/', itens_recentes_api, name='itens-recentes-api'),
-    
-    # URLs de compatibilidade (legado - serão removidas)
-    path('anuncios/', ListarAnuncios.as_view(), name='listar-anuncios'),
-    path('anuncios/novo/', CriarAnuncios.as_view(), name='criar-anuncio'),
-    path('anuncios/<int:pk>/editar/', EditarAnuncios.as_view(), name='editar-anuncio'),
-    path('anuncios/<int:pk>/deletar/', DeletarAnuncio.as_view(), name='deletar-anuncio'),
 ]

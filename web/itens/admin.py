@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils import timezone
-from itens.models import Item, Comentario, Anuncio
+from itens.models import Item, Comentario
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
@@ -152,19 +152,7 @@ class ComentarioAdmin(admin.ModelAdmin):
 
 
 # Admin para modelo de compatibilidade
-@admin.register(Anuncio)
-class AnuncioAdmin(admin.ModelAdmin):
-    """
-    Admin para modelo legado (compatibilidade)
-    """
-    list_display = ['data', 'descricao', 'preco', 'usuario']
-    search_fields = ['descricao', 'usuario__username']
-    list_filter = ['data']
-    readonly_fields = ['data']
-    
-    def get_model_perms(self, request):
-        """Oculta o modelo do menu principal (deprecated)"""
-        return {}
+# Fim das classes de administração
 
 # Customizações gerais do admin
 admin.site.site_header = "Sistema de Achados & Perdidos - UFT Palmas"

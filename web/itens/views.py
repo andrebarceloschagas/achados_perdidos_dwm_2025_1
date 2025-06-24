@@ -14,10 +14,10 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.conf import settings
 
-from itens.models import Item, Comentario, Anuncio
+from itens.models import Item, Comentario
 from itens.forms import (
     FormularioItem, FormularioComentario, 
-    FormularioFiltro, FormularioAnuncio
+    FormularioFiltro
 )
 from achados_perdidos_uft.bibliotecas import LoginObrigatorio
 
@@ -215,9 +215,6 @@ def adicionar_comentario(request, item_id):
     return redirect('itens:detalhe-item', pk=item_id)
 
 
-
-
-
 @login_required
 def marcar_como_resolvido(request, item_id):
     """
@@ -257,13 +254,6 @@ def meus_itens(request):
     return render(request, 'itens/meus_itens.html', context)
 
 
-
-
-
-
-
-
-
 def itens_recentes_api(request):
     """
     API para retornar itens recentes (JSON)
@@ -284,33 +274,4 @@ def itens_recentes_api(request):
     
     return JsonResponse({'itens': data})
 
-# Views de compatibilidade (serão removidas)
-class ListarAnuncios(ListView):
-    """View de compatibilidade para anúncios antigos"""
-    model = Anuncio
-    context_object_name = 'anuncios'
-    template_name = 'itens/listar.html'
-
-class CriarAnuncios(LoginObrigatorio, CreateView):
-    """View de compatibilidade para criar anúncios"""
-    model = Anuncio
-    form_class = FormularioAnuncio
-    template_name = 'itens/novo.html'
-    success_url = reverse_lazy('itens:listar-anuncios')
-    
-    def form_valid(self, form):
-        form.instance.usuario = self.request.user
-        return super().form_valid(form)
-
-class EditarAnuncios(LoginObrigatorio, UpdateView):
-    """View de compatibilidade para editar anúncios"""
-    model = Anuncio
-    form_class = FormularioAnuncio
-    template_name = 'itens/novo.html'
-    success_url = reverse_lazy('itens:listar-anuncios')
-
-class DeletarAnuncio(LoginObrigatorio, DeleteView):
-    """View de compatibilidade para deletar anúncios"""
-    model = Anuncio
-    template_name = 'itens/deletar_item.html'
-    success_url = reverse_lazy('itens:listar-anuncios')
+# Fim do arquivo

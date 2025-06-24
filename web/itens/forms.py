@@ -5,7 +5,7 @@ Formulários do sistema de Achados & Perdidos da UFT Palmas
 from django import forms
 from django.contrib.auth.models import User
 from itens.models import (
-    Item, Comentario, Anuncio,
+    Item, Comentario,
     TIPO_ITEM_CHOICES, CATEGORIA_CHOICES, BLOCO_CHOICES, STATUS_CHOICES
 )
 
@@ -249,17 +249,4 @@ class FormularioRegistroUsuario(forms.ModelForm):
             raise forms.ValidationError('Este email já está em uso.')
         return email
 
-# Formulário de compatibilidade (será removido)
-class FormularioAnuncio(forms.ModelForm):
-    """
-    Formulário para o modelo Anuncio (compatibilidade)
-    DEPRECATED: Use FormularioItem
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'form-control'
-    
-    class Meta:
-        model = Anuncio
-        exclude = ['usuario']
+# Fim do arquivo

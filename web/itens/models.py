@@ -303,29 +303,3 @@ class Comentario(models.Model):
     
     def __str__(self):
         return f'Comentário de {self.usuario.username} em {self.item.titulo}'
-
-
-
-
-
-# Modelo de compatibilidade (será removido em versões futuras)
-class Anuncio(models.Model):
-    """
-    Modelo antigo mantido para compatibilidade
-    DEPRECATED: Use o modelo Item
-    """
-    data = models.DateTimeField(auto_now_add=True)
-    descricao = models.CharField(max_length=200)
-    preco = models.DecimalField(decimal_places=2, max_digits=10)
-    usuario = models.ForeignKey(
-        User, 
-        related_name='anuncios_realizados', 
-        on_delete=models.CASCADE
-    )
-
-    class Meta:
-        verbose_name = 'Anúncio (Legado)'
-        verbose_name_plural = 'Anúncios (Legado)'
-
-    def __str__(self):
-        return f'{self.data.strftime("%d/%m/%Y")} - {self.descricao} ({self.usuario})'
