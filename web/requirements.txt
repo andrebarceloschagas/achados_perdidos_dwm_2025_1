@@ -36,6 +36,7 @@ django-allauth
 
 # API REST (para futuras expansões)
 djangorestframework
+djangorestframework-simplejwt
 
 # CORS headers (para API)
 django-cors-headers

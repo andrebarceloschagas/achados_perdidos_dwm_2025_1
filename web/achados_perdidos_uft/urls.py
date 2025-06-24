@@ -26,6 +26,9 @@ urlpatterns = [
     
     # App de itens (achados e perdidos)
     path('itens/', include('itens.urls')),
+    
+    # API REST
+    path('api/', include('itens.api_urls')),
 ]
 
 # Servir arquivos de media em desenvolvimento
