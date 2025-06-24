@@ -1,20 +1,88 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
+  <ion-toolbar color="primary">
     <ion-title>
-      Blank
+      Achados & Perdidos UFT
     </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div *ngIf="user">
+    <h2 class="text-center mb-3">Bem-vindo(a), {{ user.first_name || user.username }}!</h2>
   </div>
+
+  <ion-segment [(ngModel)]="tipoFiltro" (ionChange)="filtrarPorTipo()" class="mb-3">
+    <ion-segment-button value="todos">
+      <ion-label>Todos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="perdido">
+      <ion-label>Perdidos</ion-label>
+      <ion-icon name="alert-circle-outline"></ion-icon>
+    </ion-segment-button>
+    <ion-segment-button value="encontrado">
+      <ion-label>Encontrados</ion-label>
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-searchbar [(ngModel)]="searchText" (ionInput)="buscarItens()" placeholder="Buscar itens..."></ion-searchbar>
+
+  <div *ngIf="loading" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando itens...</p>
+  </div>
+
+  <div *ngIf="!loading && itens.length === 0" class="ion-text-center ion-padding">
+    <ion-icon name="document-text-outline" size="large" class="text-secondary"></ion-icon>
+    <p>Nenhum item encontrado</p>
+  </div>
+
+  <ion-list *ngIf="!loading && itens.length > 0">
+    <ion-card *ngFor="let item of itens" [class.item-perdido]="item.tipo === 'perdido'"
+      [class.item-encontrado]="item.tipo === 'encontrado'">
+      <ion-img *ngIf="item.foto" [src]="item.foto" class="item-img"></ion-img>
+
+      <ion-card-header>
+        <ion-badge [color]="item.tipo === 'perdido' ? 'danger' : 'success'" class="ion-margin-bottom">
+          <ion-icon [name]="item.tipo === 'perdido' ? 'alert-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+          {{ item.tipo_display }}
+        </ion-badge>
+        <ion-card-title>{{ item.titulo }}</ion-card-title>
+        <ion-card-subtitle>{{ item.categoria_display }} • {{ item.bloco_display }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p>{{ item.descricao | slice:0:100 }}{{ item.descricao.length > 100 ? '...' : '' }}</p>
+        <ion-text color="medium" class="data-item">
+          <ion-icon name="time-outline"></ion-icon> {{ item.tempo_desde_postagem }}
+        </ion-text>
+
+        <div class="item-actions">
+          <ion-button fill="clear" size="small" (click)="verDetalhes(item.id)">
+            <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+            Detalhes
+          </ion-button>
+          <ion-button fill="clear" size="small" (click)="contatarDono(item)" *ngIf="item.tipo === 'encontrado'">
+            <ion-icon name="mail-outline" slot="start"></ion-icon>
+            Contato
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button color="primary" (click)="criarNovoItem()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
