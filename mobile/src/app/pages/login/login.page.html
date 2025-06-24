@@ -1,0 +1,65 @@
+<ion-header [translucent]="true">
+    <ion-toolbar color="primary">
+        <ion-title>
+            <ion-icon name="search-outline" style="margin-right: 8px;"></ion-icon>
+            Achados & Perdidos UFT
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+    <div class="login-container">
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title class="ion-text-center">Login</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+                    <ion-item>
+                        <ion-label position="floating">Usuário</ion-label>
+                        <ion-input type="text" formControlName="username"></ion-input>
+                    </ion-item>
+                    <ion-text color="danger"
+                        *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+                        <p class="error-message">Nome de usuário é obrigatório</p>
+                    </ion-text>
+
+                    <ion-item>
+                        <ion-label position="floating">Senha</ion-label>
+                        <ion-input [type]="hidePassword ? 'password' : 'text'" formControlName="password"></ion-input>
+                        <ion-button slot="end" fill="clear" (click)="togglePasswordVisibility()">
+                            <ion-icon slot="icon-only"
+                                [name]="hidePassword ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+                        </ion-button>
+                    </ion-item>
+                    <ion-text color="danger"
+                        *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                        <p class="error-message">Senha é obrigatória</p>
+                    </ion-text>
+
+                    <div class="ion-padding-top">
+                        <ion-button expand="block" color="primary" type="submit"
+                            [disabled]="loginForm.invalid || isSubmitting">
+                            <ion-icon slot="start" name="log-in-outline"></ion-icon>
+                            Entrar
+                            <ion-spinner name="dots" *ngIf="isSubmitting"></ion-spinner>
+                        </ion-button>
+                    </div>
+                </form>
+
+                <div class="ion-text-center ion-padding-top">
+                    <p>Não tem uma conta?</p>
+                    <ion-button fill="clear" (click)="goToRegister()">
+                        <ion-icon slot="start" name="person-add-outline"></ion-icon>
+                        Criar Conta
+                    </ion-button>
+                </div>
+            </ion-card-content>
+        </ion-card>
+
+        <div class="logo-container ion-padding ion-text-center">
+            <img src="assets/logo-uft.png" alt="Logo UFT" class="logo">
+            <p>Sistema de Achados e Perdidos da UFT/Palmas</p>
+        </div>
+    </div>
+</ion-content>

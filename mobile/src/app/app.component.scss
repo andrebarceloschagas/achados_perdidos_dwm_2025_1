@@ -1,0 +1,9 @@
+/* Estilos globais para o aplicativo */
+:host {
+  font-family: var(--ion-font-family);
+}
+
+ion-title, h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ion-font-family);
+  font-weight: 600;
+}
