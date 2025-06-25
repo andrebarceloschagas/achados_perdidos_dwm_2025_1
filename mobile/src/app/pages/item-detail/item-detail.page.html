@@ -101,7 +101,7 @@
             <ion-col size="6">
               {{ item.email_contato }}
             </ion-col>
-            
+
           </ion-row>
           <ion-row>
             <ion-col size="6">
@@ -115,6 +115,11 @@
       </div>
 
       <div class="action-buttons">
+        <ion-button *ngIf="usuarioEhDono()" fill="solid" color="tertiary" (click)="editarItem()"
+          class="ion-margin-bottom">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Editar
+        </ion-button>
         <ion-button *ngIf="usuarioEhDono()" fill="solid" color="danger" (click)="excluirItem()">
           <ion-icon name="trash-outline" slot="start"></ion-icon>
           Excluir

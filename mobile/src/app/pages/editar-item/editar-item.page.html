@@ -1,0 +1,177 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="itemId ? '/item-detail/' + itemId : '/home'"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Editar Item</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Loading da página -->
+  <div *ngIf="carregandoItem" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando dados do item...</p>
+  </div>
+
+  <!-- Formulário de edição -->
+  <form *ngIf="!carregandoItem" [formGroup]="itemForm" (ngSubmit)="atualizarItem()">
+    <!-- Tipo de item (perdido/encontrado) -->
+    <ion-segment formControlName="tipo" color="primary" class="ion-margin-bottom">
+      <ion-segment-button value="perdido">
+        <ion-label>Perdido</ion-label>
+        <ion-icon name="alert-circle-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="encontrado">
+        <ion-label>Encontrado</ion-label>
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Título -->
+    <ion-item class="ion-margin-bottom"
+      [class.ion-invalid]="formControls['titulo'].touched && formControls['titulo'].invalid" lines="full">
+      <ion-label position="stacked">Título <ion-text color="danger">*</ion-text></ion-label>
+      <ion-input formControlName="titulo" placeholder="Ex: Notebook Dell preto"></ion-input>
+      <div *ngIf="formControls['titulo'].touched && formControls['titulo'].invalid" class="error-message">
+        <ion-text color="danger" *ngIf="formControls['titulo'].errors?.['required']">Título é obrigatório</ion-text>
+        <ion-text color="danger" *ngIf="formControls['titulo'].errors?.['minlength']">Título deve ter pelo menos 5
+          caracteres</ion-text>
+      </div>
+    </ion-item>
+
+    <!-- Descrição -->
+    <ion-item class="ion-margin-bottom"
+      [class.ion-invalid]="formControls['descricao'].touched && formControls['descricao'].invalid" lines="full">
+      <ion-label position="stacked">Descrição <ion-text color="danger">*</ion-text></ion-label>
+      <ion-textarea formControlName="descricao" rows="4" placeholder="Descreva o item com detalhes"></ion-textarea>
+      <div *ngIf="formControls['descricao'].touched && formControls['descricao'].invalid" class="error-message">
+        <ion-text color="danger" *ngIf="formControls['descricao'].errors?.['required']">Descrição é
+          obrigatória</ion-text>
+        <ion-text color="danger" *ngIf="formControls['descricao'].errors?.['minlength']">Descrição deve ter pelo menos
+          10 caracteres</ion-text>
+      </div>
+    </ion-item>
+
+    <!-- Categoria -->
+    <ion-item class="ion-margin-bottom"
+      [class.ion-invalid]="formControls['categoria'].touched && formControls['categoria'].invalid" lines="full">
+      <ion-label position="stacked">Categoria <ion-text color="danger">*</ion-text></ion-label>
+      <ion-spinner *ngIf="carregandoCategorias" name="crescent" class="spinner-small"></ion-spinner>
+      <ion-select *ngIf="!carregandoCategorias" formControlName="categoria" placeholder="Selecione a categoria">
+        <ion-select-option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nome }}</ion-select-option>
+      </ion-select>
+      <div *ngIf="categorias.length === 0 && !carregandoCategorias" class="error-message">
+        <ion-text color="medium">Nenhuma categoria disponível</ion-text>
+      </div>
+      <div *ngIf="formControls['categoria'].touched && formControls['categoria'].invalid" class="error-message">
+        <ion-text color="danger">Categoria é obrigatória</ion-text>
+      </div>
+    </ion-item>
+
+    <!-- Local (Bloco) -->
+    <ion-item class="ion-margin-bottom"
+      [class.ion-invalid]="formControls['bloco'].touched && formControls['bloco'].invalid" lines="full">
+      <ion-label position="stacked">Local/Bloco <ion-text color="danger">*</ion-text></ion-label>
+      <ion-spinner *ngIf="carregandoBlocos" name="crescent" class="spinner-small"></ion-spinner>
+      <ion-select *ngIf="!carregandoBlocos" formControlName="bloco" placeholder="Selecione o local">
+        <ion-select-option *ngFor="let bloco of blocos" [value]="bloco.id">{{ bloco.nome }}</ion-select-option>
+      </ion-select>
+      <div *ngIf="blocos.length === 0 && !carregandoBlocos" class="error-message">
+        <ion-text color="medium">Nenhum local/bloco disponível</ion-text>
+      </div>
+      <div *ngIf="formControls['bloco'].touched && formControls['bloco'].invalid" class="error-message">
+        <ion-text color="danger">Local/Bloco é obrigatório</ion-text>
+      </div>
+    </ion-item>
+
+    <!-- Local específico -->
+    <ion-item class="ion-margin-bottom" lines="full">
+      <ion-label position="stacked">Local específico</ion-label>
+      <ion-input formControlName="local_especifico" placeholder="Ex: Sala 304, Próximo à cantina"></ion-input>
+    </ion-item>
+
+    <!-- Data de ocorrência -->
+    <ion-item class="ion-margin-bottom"
+      [class.ion-invalid]="formControls['data_ocorrencia'].touched && formControls['data_ocorrencia'].invalid"
+      lines="full">
+      <ion-label position="stacked">Data de ocorrência <ion-text color="danger">*</ion-text></ion-label>
+      <ion-datetime-button datetime="datetime"></ion-datetime-button>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime id="datetime" formControlName="data_ocorrencia" [max]="dataHoje" [firstDayOfWeek]="0"
+            presentation="date" locale="pt-BR" preferWheel="true" showDefaultButtons="true" doneText="Confirmar"
+            cancelText="Cancelar">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+      <div *ngIf="formControls['data_ocorrencia'].touched && formControls['data_ocorrencia'].invalid"
+        class="error-message">
+        <ion-text color="danger">Data de ocorrência é obrigatória</ion-text>
+      </div>
+    </ion-item>
+
+    <!-- Informações de contato -->
+    <ion-item class="ion-margin-bottom" lines="none">
+      <ion-label>
+        <h2>Informações de contato adicionais</h2>
+        <p>Além do seu e-mail cadastrado, você pode adicionar outras formas de contato</p>
+      </ion-label>
+    </ion-item>
+
+    <!-- Telefone de contato -->
+    <ion-item class="ion-margin-bottom" lines="full">
+      <ion-label position="stacked">Telefone para contato</ion-label>
+      <ion-input formControlName="telefone_contato" type="tel" placeholder="(63) 99999-9999"></ion-input>
+    </ion-item>
+
+    <!-- Email de contato -->
+    <ion-item class="ion-margin-bottom"
+      [class.ion-invalid]="formControls['email_contato'].touched && formControls['email_contato'].errors?.['email']"
+      lines="full">
+      <ion-label position="stacked">E-mail alternativo</ion-label>
+      <ion-input formControlName="email_contato" type="email" placeholder="seu@email.com"></ion-input>
+      <div *ngIf="formControls['email_contato'].touched && formControls['email_contato'].errors?.['email']"
+        class="error-message">
+        <ion-text color="danger">Email inválido</ion-text>
+      </div>
+    </ion-item>
+
+    <!-- Upload de foto -->
+    <ion-item class="ion-margin-bottom" lines="none">
+      <ion-label>
+        <h2>Foto do item</h2>
+        <p>Atualize a foto para facilitar a identificação</p>
+      </ion-label>
+    </ion-item>
+
+    <!-- Preview da imagem -->
+    <div *ngIf="imagemPreview" class="imagem-preview-container ion-margin-bottom">
+      <ion-img [src]="imagemPreview" class="imagem-preview"></ion-img>
+      <ion-button fill="clear" color="medium" (click)="removerImagem()">
+        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <ion-button *ngIf="!imagemPreview" expand="block" fill="outline" color="medium" (click)="selecionarImagem()"
+      class="ion-margin-bottom">
+      <ion-icon name="camera-outline" slot="start"></ion-icon>
+      Adicionar foto
+    </ion-button>
+
+    <ion-button *ngIf="imagemPreview" expand="block" fill="outline" color="medium" (click)="selecionarImagem()"
+      class="ion-margin-bottom">
+      <ion-icon name="camera-outline" slot="start"></ion-icon>
+      Trocar foto
+    </ion-button>
+
+    <!-- Botões de ação -->
+    <div class="ion-padding">
+      <ion-button expand="block" type="submit" [disabled]="enviando">
+        <ion-spinner *ngIf="enviando" name="crescent"></ion-spinner>
+        <span *ngIf="!enviando">Atualizar item</span>
+      </ion-button>
+      <ion-button expand="block" fill="clear" (click)="cancelar()" [disabled]="enviando">Cancelar</ion-button>
+    </div>
+  </form>
+</ion-content>
