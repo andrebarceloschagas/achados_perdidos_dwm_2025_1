@@ -240,8 +240,6 @@ export class CriarItemPage implements OnInit {
       const extension = file.name.split('.').pop() || 'jpg';
       const fileName = `item_${timestamp}.${extension}`;
       
-      // Para desenvolvimento web, vamos usar o arquivo diretamente
-      // Em produção, seria necessário implementar upload para servidor
       this.imagemArquivo = new File([file], fileName, { type: file.type });
       
       // Salvar referência para uso posterior

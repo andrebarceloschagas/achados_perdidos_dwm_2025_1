@@ -96,15 +96,21 @@ export class AuthService {
 
   // Refresh token
   refreshToken(): Observable<RefreshTokenResponse | null> {
+    console.log('🔄 Iniciando refresh token...');
     return from(this.getStoredTokens()).pipe(
       switchMap(tokens => {
         if (!tokens || !tokens.refresh) {
+          console.log('❌ Nenhum refresh token encontrado');
           return of(null);
         }
+        console.log('📤 Enviando requisição de refresh...');
         return this.http.post<RefreshTokenResponse>(`${this.apiUrl}token/refresh/`, {
           refresh: tokens.refresh
         }).pipe(
-          tap(response => this.updateAccessToken(response.access))
+          tap(response => {
+            console.log('✅ Refresh token bem-sucedido');
+            this.updateAccessToken(response.access);
+          })
         );
       })
     );
