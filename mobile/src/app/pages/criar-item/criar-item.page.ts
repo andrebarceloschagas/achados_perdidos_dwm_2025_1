@@ -145,55 +145,11 @@ export class CriarItemPage implements OnInit {
 
   async selecionarImagem() {
     try {
-      // Configuração da câmera para ambos os ambientes
-      const cameraOptions = {
-        quality: 90,
-        allowEditing: true,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt
-      };
-      
-      // Verificar se estamos em um ambiente web
-      if (!Capacitor.isPluginAvailable('Camera') || Capacitor.getPlatform() === 'web') {
-        // Mostrar alerta para o usuário sobre limitações no navegador
-        await this.alertController.create({
-          header: 'Atenção',
-          message: 'Para a melhor experiência no upload de imagens, use o aplicativo móvel instalado.',
-          buttons: ['OK']
-        }).then(alert => alert.present());
-      }
-      
-      // Obter imagem da câmera ou galeria
-      const imageData = await Camera.getPhoto(cameraOptions);
-      
-      if (imageData && imageData.dataUrl) {
-        this.imagemPreview = imageData.dataUrl;
-        
-        try {
-          // Método mais confiável de converter base64 para File
-          const response = await fetch(imageData.dataUrl);
-          const blob = await response.blob();
-          
-          // Usar timestamp para garantir nome único
-          const fileName = new Date().getTime() + '.jpeg';
-          this.imagemArquivo = new File([blob], fileName, { type: 'image/jpeg' });
-          
-          // Verificar tamanho do arquivo imediatamente
-          if (!this.verificarTamanhoImagem(this.imagemArquivo)) {
-            this.imagemPreview = null;
-            this.imagemArquivo = null;
-          }
-        } catch (error) {
-          console.error('Erro ao processar imagem:', error);
-          await this.toastController.create({
-            message: 'Erro ao processar a imagem. Por favor, tente novamente.',
-            duration: 3000,
-            color: 'danger'
-          }).then(toast => toast.present());
-          
-          this.imagemPreview = null;
-          this.imagemArquivo = null;
-        }
+      // Verificar se estamos em ambiente web para mostrar opções diferentes
+      if (Capacitor.getPlatform() === 'web') {
+        await this.selecionarImagemWeb();
+      } else {
+        await this.selecionarImagemMobile();
       }
     } catch (error) {
       console.error('Erro ao selecionar imagem:', error);
@@ -202,6 +158,99 @@ export class CriarItemPage implements OnInit {
         duration: 3000,
         color: 'danger'
       }).then(toast => toast.present());
+    }
+  }
+
+  async selecionarImagemWeb() {
+    // Criar input file para selecionar do computador
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = async (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        // Verificar tamanho do arquivo
+        if (!this.verificarTamanhoImagem(file)) {
+          return;
+        }
+
+        // Criar preview da imagem
+        const reader = new FileReader();
+        reader.onload = async (e: any) => {
+          this.imagemPreview = e.target.result;
+          
+          // Copiar arquivo para a pasta de assets
+          await this.salvarImagemLocal(file);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    
+    input.click();
+  }
+
+  async selecionarImagemMobile() {
+    // Configuração da câmera para ambos os ambientes
+    const cameraOptions = {
+      quality: 90,
+      allowEditing: true,
+      resultType: CameraResultType.DataUrl,
+      source: CameraSource.Prompt
+    };
+    
+    // Obter imagem da câmera ou galeria
+    const imageData = await Camera.getPhoto(cameraOptions);
+    
+    if (imageData && imageData.dataUrl) {
+      this.imagemPreview = imageData.dataUrl;
+      
+      try {
+        // Método mais confiável de converter base64 para File
+        const response = await fetch(imageData.dataUrl);
+        const blob = await response.blob();
+        
+        // Usar timestamp para garantir nome único
+        const fileName = new Date().getTime() + '.jpeg';
+        this.imagemArquivo = new File([blob], fileName, { type: 'image/jpeg' });
+        
+        // Verificar tamanho do arquivo imediatamente
+        if (!this.verificarTamanhoImagem(this.imagemArquivo)) {
+          this.imagemPreview = null;
+          this.imagemArquivo = null;
+        }
+      } catch (error) {
+        console.error('Erro ao processar imagem:', error);
+        await this.toastController.create({
+          message: 'Erro ao processar a imagem. Por favor, tente novamente.',
+          duration: 3000,
+          color: 'danger'
+        }).then(toast => toast.present());
+        
+        this.imagemPreview = null;
+        this.imagemArquivo = null;
+      }
+    }
+  }
+
+  async salvarImagemLocal(file: File) {
+    try {
+      // Gerar nome único para o arquivo
+      const timestamp = new Date().getTime();
+      const extension = file.name.split('.').pop() || 'jpg';
+      const fileName = `item_${timestamp}.${extension}`;
+      
+      // Para desenvolvimento web, vamos usar o arquivo diretamente
+      // Em produção, seria necessário implementar upload para servidor
+      this.imagemArquivo = new File([file], fileName, { type: file.type });
+      
+      // Salvar referência para uso posterior
+      localStorage.setItem('ultimaImagemSelecionada', fileName);
+      
+      console.log('Imagem preparada para upload:', fileName);
+    } catch (error) {
+      console.error('Erro ao processar imagem local:', error);
+      throw error;
     }
   }
 
