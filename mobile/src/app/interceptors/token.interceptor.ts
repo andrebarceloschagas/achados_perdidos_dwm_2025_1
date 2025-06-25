@@ -85,13 +85,13 @@ const handle401Error = (
           return next(newRequest);
         }
         
-        console.log('❌ Falha ao renovar token, fazendo logout');
+        console.log('Falha ao renovar token, fazendo logout');
         // Se não conseguimos atualizar o token, precisamos fazer logout
         authService.logout().subscribe();
         return throwError(() => new Error('Sessão expirada. Por favor, faça login novamente.'));
       }),
       catchError(err => {
-        console.log('❌ Erro durante refresh token:', err);
+        console.log('Erro durante refresh token:', err);
         // Fazer logout ao falhar refresh
         authService.logout().subscribe();
         return throwError(() => err);
