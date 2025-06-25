@@ -1,5 +1,5 @@
 """
-Configuração do painel administrativo para o sistema de Achados & Perdidos da UFT
+Configuração do painel administrativo para o Sistema de Achados & Perdidos
 """
 
 from django.contrib import admin

@@ -1,5 +1,5 @@
-# Sistema de Achados & Perdidos da UFT Palmas
-# Dependências do projeto - Versões fixas
+# Bibliotecas a serem instaladas no venv do Sistema de Achados & Perdidos
+
 
 # Framework principal
 Django
@@ -7,26 +7,11 @@ Django
 # Banco de dados
 psycopg2-binary
 
-# Servidor de desenvolvimento
-gunicorn
-
 # Manipulação de imagens
 Pillow
 
-# Timezone
-pytz
-
-# Variáveis de ambiente
-python-decouple
-
-# Validação de dados
-django-crispy-forms
-
 # Bootstrap para Django
 crispy-bootstrap5
-
-# Paginação avançada
-django-bootstrap-pagination
 
 # Filtros avançados
 django-filter
@@ -40,43 +25,3 @@ djangorestframework-simplejwt
 
 # CORS headers (para API)
 django-cors-headers
-
-# Compressão de arquivos estáticos
-django-compressor
-
-
-# Monitoramento e logs
-django-extensions
-
-# Segurança adicional
-django-security
-
-# Validação de email
-django-email-verification
-
-# Geração de relatórios
-reportlab
-
-# Exportação para Excel
-openpyxl
-
-# Processamento de datas
-python-dateutil
-
-# Validação de telefone brasileiro
-phonenumbers
-
-# Slugify para URLs amigáveis
-python-slugify
-
-# Markdown para documentação
-Markdown
-
-# Testes
-coverage
-factory-boy
-
-# Desenvolvimento
-black
-flake8
-isort

@@ -1,8 +1,5 @@
 """
-Serializers para a API REST do sistema de Achados & Perdidos
-
-Este módulo contém os serializers que convertem os objetos do modelo em JSON
-e vice-versa para a API REST.
+Serializers para a API REST do Sistema de Achados & Perdidos
 """
 
 from rest_framework import serializers

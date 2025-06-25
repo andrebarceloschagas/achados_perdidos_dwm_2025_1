@@ -1,8 +1,5 @@
 """
 API Views para o sistema de Achados & Perdidos
-
-Este módulo contém as views baseadas em classes da API REST
-para interagir com os modelos do sistema.
 """
 
 from rest_framework import viewsets, permissions, filters, status

@@ -1,5 +1,5 @@
 """
-URLs do app Itens - Sistema de Achados & Perdidos UFT Palmas
+URLs do app Itens do Sistema de Achados & Perdidos
 """
 
 from django.urls import path

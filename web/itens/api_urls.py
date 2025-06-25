@@ -1,7 +1,5 @@
 """
 URLs para a API REST do sistema de Achados & Perdidos
-
-Este módulo define as rotas da API REST usando o DefaultRouter do DRF.
 """
 
 from django.urls import path, include

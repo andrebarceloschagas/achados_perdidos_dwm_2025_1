@@ -1,5 +1,5 @@
 """
-Configurações do Django para o Sistema de Achados & Perdidos da UFT Palmas
+Configurações do Django para o Sistema de Achados & Perdidos
 """
 
 import os
@@ -25,11 +25,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # Third-party apps
     'rest_framework',
     'corsheaders',
     
-    # Apps locais
     'itens',
 ]
 
@@ -125,7 +123,7 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# Email configuration (development)
+# Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Configurações específicas do sistema

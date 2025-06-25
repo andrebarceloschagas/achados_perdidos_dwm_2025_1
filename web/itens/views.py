@@ -1,5 +1,5 @@
 """
-Views do sistema de Achados & Perdidos da UFT Palmas
+Views do sistema de Achados & Perdidos
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -363,6 +363,3 @@ def contato_direto(request, item_id):
     }
     
     return render(request, 'itens/contato_direto.html', context)
-
-
-# Fim do arquivo

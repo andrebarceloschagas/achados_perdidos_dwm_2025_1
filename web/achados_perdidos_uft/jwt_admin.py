@@ -1,5 +1,5 @@
 """
-Configuração do painel administrativo para os modelos de token JWT
+Configuração do painel administrativo para os modelos de token JWT do Sistema de Achados & Perdidos
 """
 
 from django.contrib import admin
