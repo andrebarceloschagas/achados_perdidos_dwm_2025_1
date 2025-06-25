@@ -1,5 +1,5 @@
 """
-Testes unitários para o sistema de Achados & Perdidos da UFT Palmas
+Testes unitários para o Sistema de Achados & Perdidos
 """
 
 from django.test import TestCase
@@ -100,9 +100,6 @@ class ComentarioModelTest(TestCase):
         """Testa representação string do comentário"""
         expected = f"Comentário de {self.usuario.username} em {self.item.titulo}"
         self.assertEqual(str(self.comentario), expected)
-
-
-
 
 
 class FormularioItemTest(TestCase):

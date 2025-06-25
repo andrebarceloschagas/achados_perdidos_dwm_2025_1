@@ -161,6 +161,13 @@ export class ItemDetailPage implements OnInit {
     return this.item.usuario === this.currentUserId;
   }
   
+  editarItem() {
+    if (!this.item) return;
+    
+    // Navegar para a página de edição passando o ID do item
+    this.router.navigate(['/editar-item', this.item.id]);
+  }
+  
   async excluirItem() {
     if (!this.item) return;
     

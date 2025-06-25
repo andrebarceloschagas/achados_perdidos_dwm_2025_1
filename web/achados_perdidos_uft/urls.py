@@ -1,5 +1,5 @@
 """
-URLs principais do sistema de Achados & Perdidos da UFT Palmas
+URLs principais do Sistema de Achados & Perdidos
 """
 
 from django.contrib import admin

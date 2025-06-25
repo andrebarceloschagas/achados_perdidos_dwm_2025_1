@@ -7,11 +7,11 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, from } from 'rxjs';
-import { catchError, filter, take, switchMap } from 'rxjs/operators';
+import { catchError, filter, take, switchMap, finalize } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { RefreshTokenResponse } from '../models/auth.model';
 
-// Novo interceptor funcional
+// Novo interceptor funcional com melhor controle de refresh
 export const TokenInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
@@ -26,6 +26,14 @@ export const TokenInterceptor: HttpInterceptorFn = (
       }
     });
   };
+  
+  // Skip token for public endpoints
+  if (req.url.includes('/token/') || 
+      req.url.includes('/categorias/') || 
+      req.url.includes('/blocos/') ||
+      (req.url.includes('/users/') && req.method === 'POST')) {
+    return next(req);
+  }
   
   // Converter a promessa em um Observable
   return from(authService.getAccessToken()).pipe(
@@ -46,7 +54,7 @@ export const TokenInterceptor: HttpInterceptorFn = (
   );
 };
 
-// Gerenciamento de refresh token
+// Gerenciamento de refresh token com melhor controle
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
@@ -55,44 +63,59 @@ const handle401Error = (
   next: HttpHandlerFn,
   authService: AuthService
 ): Observable<HttpEvent<any>> => {
+  console.log('🚨 Erro 401 detectado, tentando refresh token...');
+  
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
     
     return authService.refreshToken().pipe(
       switchMap((response: RefreshTokenResponse | null) => {
-        isRefreshing = false;
-        
         if (response && response.access) {
+          console.log('✅ Token renovado com sucesso, fazendo nova requisição');
           refreshTokenSubject.next(response.access);
-          return next(request.clone({
+          
+          // Fazer nova requisição com token atualizado
+          const newRequest = request.clone({
             setHeaders: {
               Authorization: `Bearer ${response.access}`
             }
-          }));
+          });
+          
+          return next(newRequest);
         }
         
+        console.log('Falha ao renovar token, fazendo logout');
         // Se não conseguimos atualizar o token, precisamos fazer logout
         authService.logout().subscribe();
         return throwError(() => new Error('Sessão expirada. Por favor, faça login novamente.'));
       }),
       catchError(err => {
-        isRefreshing = false;
-        
+        console.log('Erro durante refresh token:', err);
         // Fazer logout ao falhar refresh
         authService.logout().subscribe();
         return throwError(() => err);
+      }),
+      finalize(() => {
+        console.log('🏁 Finalizando processo de refresh');
+        isRefreshing = false;
       })
     );
   }
   
+  console.log('⏳ Aguardando refresh em andamento...');
+  // Se já está fazendo refresh, aguardar o resultado
   return refreshTokenSubject.pipe(
     filter(token => token !== null),
     take(1),
-    switchMap(token => next(request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    })))
+    switchMap(token => {
+      console.log('🔄 Usando token renovado para nova tentativa');
+      const newRequest = request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return next(newRequest);
+    })
   );
 };

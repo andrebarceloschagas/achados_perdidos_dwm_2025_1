@@ -1,14 +1,21 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button [defaultHref]="itemId ? '/item-detail/' + itemId : '/home'"></ion-back-button>
     </ion-buttons>
-    <ion-title>Cadastrar Item</ion-title>
+    <ion-title>Editar Item</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <form [formGroup]="itemForm" (ngSubmit)="enviarItem()">
+  <!-- Loading da página -->
+  <div *ngIf="carregandoItem" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando dados do item...</p>
+  </div>
+
+  <!-- Formulário de edição -->
+  <form *ngIf="!carregandoItem" [formGroup]="itemForm" (ngSubmit)="atualizarItem()">
     <!-- Tipo de item (perdido/encontrado) -->
     <ion-segment formControlName="tipo" color="primary" class="ion-margin-bottom">
       <ion-segment-button value="perdido">
@@ -134,7 +141,7 @@
     <ion-item class="ion-margin-bottom" lines="none">
       <ion-label>
         <h2>Foto do item</h2>
-        <p>Adicione uma foto para facilitar a identificação (câmera, galeria ou arquivos do computador)</p>
+        <p>Atualize a foto para facilitar a identificação (câmera, galeria ou arquivos do computador)</p>
       </ion-label>
     </ion-item>
 
@@ -152,11 +159,17 @@
       Selecionar foto
     </ion-button>
 
+    <ion-button *ngIf="imagemPreview" expand="block" fill="outline" color="medium" (click)="selecionarImagem()"
+      class="ion-margin-bottom">
+      <ion-icon name="image-outline" slot="start"></ion-icon>
+      Trocar foto
+    </ion-button>
+
     <!-- Botões de ação -->
     <div class="ion-padding">
       <ion-button expand="block" type="submit" [disabled]="enviando">
         <ion-spinner *ngIf="enviando" name="crescent"></ion-spinner>
-        <span *ngIf="!enviando">Salvar item</span>
+        <span *ngIf="!enviando">Atualizar item</span>
       </ion-button>
       <ion-button expand="block" fill="clear" (click)="cancelar()" [disabled]="enviando">Cancelar</ion-button>
     </div>

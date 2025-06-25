@@ -1,5 +1,5 @@
 """
-Views de autenticação para a API REST do sistema de Achados & Perdidos
+Views de autenticação para a API REST do Sistema de Achados & Perdidos
 """
 
 from rest_framework import status

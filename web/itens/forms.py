@@ -1,5 +1,5 @@
 """
-Formulários do sistema de Achados & Perdidos da UFT Palmas
+Formulários do sistema de Achados & Perdidos
 """
 
 from django import forms
@@ -10,10 +10,6 @@ from itens.models import (
 )
 
 class FormularioItem(forms.ModelForm):
-    """
-    Formulário para cadastro e edição de itens perdidos/encontrados
-    """
-    
     class Meta:
         model = Item
         fields = [
@@ -264,5 +260,3 @@ class FormularioContato(forms.ModelForm):
                 'placeholder': 'Explique por que você está interessado neste item ou como pode ajudar.'
             }),
         }
-
-# Fim do arquivo

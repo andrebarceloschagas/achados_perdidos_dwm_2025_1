@@ -1,5 +1,5 @@
 """
-Context Processors para o sistema de Achados & Perdidos da UFT Palmas
+Context Processors para o Sistema de Achados & Perdidos
 """
 
 from django.db.models import Count, Q

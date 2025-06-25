@@ -1,6 +1,5 @@
-#!/usr/bin/env python
 """
-Script de gerenciamento do Django para o Sistema de Achados & Perdidos da UFT Palmas
+Script de gerenciamento do Django para o Sistema de Achados & Perdidos
 """
 import os
 import sys

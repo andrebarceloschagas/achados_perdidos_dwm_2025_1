@@ -1,8 +1,5 @@
 """
-Modelos do sistema de Achados & Perdidos da UFT Palmas
-
-Este módulo contém os modelos de dados para gerenciar itens perdidos e encontrados
-no campus da Universidade Federal do Tocantins.
+Modelos do sistema de Achados & Perdidos
 """
 
 from django.db import models

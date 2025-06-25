@@ -1,5 +1,5 @@
 """
-Configuração de aplicação para o projeto achados_perdidos_uft
+Configuração de aplicação para o Sistema de Achados & Perdidos
 """
 
 from django.apps import AppConfig

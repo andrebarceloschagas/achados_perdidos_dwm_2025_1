@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 import { firstValueFrom } from 'rxjs';
@@ -36,11 +36,12 @@ import {
 } from '@ionic/angular/standalone';
 
 import { ItemService } from '../../services/item.service';
+import { ItemDetail } from '../../models/item.model';
 
 @Component({
-  selector: 'app-criar-item',
-  templateUrl: './criar-item.page.html',
-  styleUrls: ['./criar-item.page.scss'],
+  selector: 'app-editar-item',
+  templateUrl: './editar-item.page.html',
+  styleUrls: ['./editar-item.page.scss'],
   standalone: true,
   imports: [
     CommonModule, 
@@ -70,7 +71,7 @@ import { ItemService } from '../../services/item.service';
     IonText
   ]
 })
-export class CriarItemPage implements OnInit {
+export class EditarItemPage implements OnInit {
   itemForm: FormGroup;
   categorias: {id: string, nome: string}[] = [];
   blocos: {id: string, nome: string}[] = [];
@@ -78,11 +79,15 @@ export class CriarItemPage implements OnInit {
   imagemArquivo: File | null = null;
   carregandoCategorias = false;
   carregandoBlocos = false;
+  carregandoItem = false;
   enviando = false;
   dataHoje = new Date().toISOString();
+  itemId: number | null = null;
+  item: ItemDetail | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
     private itemService: ItemService,
     private router: Router,
     private loadingController: LoadingController,
@@ -103,10 +108,59 @@ export class CriarItemPage implements OnInit {
   }
 
   async ngOnInit() {
-    await Promise.all([
-      this.carregarCategorias(),
-      this.carregarBlocos()
-    ]);
+    // Obter o ID do item da URL
+    this.route.paramMap.subscribe(params => {
+      const idParam = params.get('id');
+      if (idParam) {
+        this.itemId = parseInt(idParam, 10);
+      }
+    });
+
+    if (this.itemId) {
+      await Promise.all([
+        this.carregarCategorias(),
+        this.carregarBlocos(),
+        this.carregarItem()
+      ]);
+    }
+  }
+
+  async carregarItem() {
+    if (!this.itemId) return;
+    
+    this.carregandoItem = true;
+    try {
+      this.item = await firstValueFrom(this.itemService.getItem(this.itemId));
+      
+      // Preencher o formulário com os dados do item
+      this.itemForm.patchValue({
+        titulo: this.item.titulo,
+        descricao: this.item.descricao,
+        tipo: this.item.tipo,
+        categoria: this.item.categoria,
+        bloco: this.item.bloco,
+        local_especifico: this.item.local_especifico || '',
+        data_ocorrencia: this.item.data_ocorrencia,
+        telefone_contato: this.item.telefone_contato || '',
+        email_contato: this.item.email_contato || ''
+      });
+
+      // Se o item tem foto, mostrar preview
+      if (this.item.foto) {
+        this.imagemPreview = this.item.foto;
+      }
+    } catch (error) {
+      console.error('Erro ao carregar item:', error);
+      const toast = await this.toastController.create({
+        message: 'Erro ao carregar dados do item. Tente novamente.',
+        duration: 3000,
+        color: 'danger'
+      });
+      await toast.present();
+      this.router.navigate(['/home']);
+    } finally {
+      this.carregandoItem = false;
+    }
   }
 
   async carregarCategorias() {
@@ -191,7 +245,6 @@ export class CriarItemPage implements OnInit {
   }
 
   async selecionarImagemMobile() {
-    // Configuração da câmera para ambos os ambientes
     const cameraOptions = {
       quality: 90,
       allowEditing: true,
@@ -199,22 +252,18 @@ export class CriarItemPage implements OnInit {
       source: CameraSource.Prompt
     };
     
-    // Obter imagem da câmera ou galeria
     const imageData = await Camera.getPhoto(cameraOptions);
     
     if (imageData && imageData.dataUrl) {
       this.imagemPreview = imageData.dataUrl;
       
       try {
-        // Método mais confiável de converter base64 para File
         const response = await fetch(imageData.dataUrl);
         const blob = await response.blob();
         
-        // Usar timestamp para garantir nome único
         const fileName = new Date().getTime() + '.jpeg';
         this.imagemArquivo = new File([blob], fileName, { type: 'image/jpeg' });
         
-        // Verificar tamanho do arquivo imediatamente
         if (!this.verificarTamanhoImagem(this.imagemArquivo)) {
           this.imagemPreview = null;
           this.imagemArquivo = null;
@@ -240,6 +289,8 @@ export class CriarItemPage implements OnInit {
       const extension = file.name.split('.').pop() || 'jpg';
       const fileName = `item_${timestamp}.${extension}`;
       
+      // Para desenvolvimento web, vamos usar o arquivo diretamente
+      // Em produção, seria necessário implementar upload para servidor
       this.imagemArquivo = new File([file], fileName, { type: file.type });
       
       // Salvar referência para uso posterior
@@ -252,178 +303,96 @@ export class CriarItemPage implements OnInit {
     }
   }
 
+  verificarTamanhoImagem(arquivo: File): boolean {
+    const tamanhoMaximoMB = 5;
+    const tamanhoMaximoBytes = tamanhoMaximoMB * 1024 * 1024;
+    
+    if (arquivo.size > tamanhoMaximoBytes) {
+      this.toastController.create({
+        message: `A imagem deve ter no máximo ${tamanhoMaximoMB}MB.`,
+        duration: 3000,
+        color: 'warning'
+      }).then(toast => toast.present());
+      return false;
+    }
+    return true;
+  }
+
   removerImagem() {
     this.imagemPreview = null;
     this.imagemArquivo = null;
   }
 
-  /**
-   * Verifica se o tamanho da imagem está dentro do limite máximo permitido
-   * @param file Arquivo para verificar o tamanho
-   * @returns true se o arquivo está dentro do limite, false caso contrário
-   */
-  verificarTamanhoImagem(file: File): boolean {
-    if (!file) return false;
-    
-    // Limite de 5MB para fotos
-    const limiteTamanho = 5 * 1024 * 1024; // 5MB em bytes
-    
-    if (file.size > limiteTamanho) {
-      this.toastController.create({
-        message: 'A imagem é muito grande. O tamanho máximo permitido é 5MB.',
-        duration: 3000,
-        color: 'danger'
-      }).then(toast => toast.present());
-      
-      return false;
-    }
-    
-    // Verificar tipos de arquivo permitidos
-    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!tiposPermitidos.includes(file.type)) {
-      this.toastController.create({
-        message: 'Formato de imagem não suportado. Por favor, use JPEG ou PNG.',
-        duration: 3000,
-        color: 'danger'
-      }).then(toast => toast.present());
-      
-      return false;
-    }
-    
-    return true;
+  get formControls() {
+    return this.itemForm.controls;
   }
 
-  async enviarItem() {
-    // Validação inicial do formulário
-    if (this.itemForm.invalid) {
-      this.marcarCamposInvalidos();
+  async atualizarItem() {
+    if (!this.itemForm.valid || !this.itemId) {
+      this.marcarCamposComoTocados();
+      const toast = await this.toastController.create({
+        message: 'Por favor, preencha todos os campos obrigatórios corretamente.',
+        duration: 3000,
+        color: 'warning'
+      });
+      await toast.present();
       return;
     }
 
     this.enviando = true;
-    
-    const loading = await this.loadingController.create({
-      message: 'Salvando item...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-    
+
     try {
-      // Clone o valor do formulário para não alterar o original
-      const itemData = {...this.itemForm.value};
-      
-      // Formatar a data corretamente para o formato esperado pela API
-      if (itemData.data_ocorrencia) {
-        const data = new Date(itemData.data_ocorrencia);
-        if (!isNaN(data.getTime())) {
-          itemData.data_ocorrencia = data.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-        }
-      }
-      
-      // Limpar campos vazios para evitar problemas no backend
-      Object.keys(itemData).forEach(key => {
-        if (itemData[key] === '' || itemData[key] === null || itemData[key] === undefined) {
-          delete itemData[key];
-        }
+      const loading = await this.loadingController.create({
+        message: 'Atualizando item...',
+        spinner: 'crescent'
       });
-      
-      // Adicionar foto se existir e estiver dentro do limite de tamanho
+      await loading.present();
+
+      const dadosItem = { ...this.itemForm.value };
+
+      // Se uma nova imagem foi selecionada, incluí-la
       if (this.imagemArquivo) {
-        if (this.verificarTamanhoImagem(this.imagemArquivo)) {
-          itemData.foto = this.imagemArquivo;
-        } else {
-          const continuar = await this.alertController.create({
-            header: 'Imagem muito grande',
-            message: 'A imagem selecionada excede o tamanho limite de 5MB. Deseja continuar sem a imagem?',
-            buttons: [
-              {
-                text: 'Cancelar',
-                role: 'cancel'
-              },
-              {
-                text: 'Continuar',
-                handler: () => true
-              }
-            ]
-          });
-          
-          await continuar.present();
-          const { role } = await continuar.onDidDismiss();
-          
-          if (role === 'cancel') {
-            loading.dismiss();
-            this.enviando = false;
-            return; // Interrompe o envio
-          }
-          // Continua sem a imagem
-        }
+        dadosItem.foto = this.imagemArquivo;
       }
-      
-      // Enviar para a API
-      const response = await firstValueFrom(this.itemService.createItem(itemData));
-      
-      // Mostrar mensagem de sucesso
+
+      await firstValueFrom(this.itemService.updateItem(this.itemId, dadosItem));
+
+      loading.dismiss();
+
       const toast = await this.toastController.create({
-        message: 'Item cadastrado com sucesso!',
+        message: 'Item atualizado com sucesso!',
         duration: 3000,
         color: 'success'
       });
       await toast.present();
-      
-      // Voltar para a home
-      this.router.navigate(['/home']);
-    } catch (error: any) {
-      console.error('Erro ao cadastrar item:', error);
-      
-      // Tratamento mais detalhado do erro
-      let mensagemErro = 'Erro ao cadastrar item. Por favor, tente novamente.';
-      
-      if (error.status === 400 && error.error) {
-        // Tentar extrair mensagens específicas de erro do backend
-        const erros = Object.entries(error.error)
-          .map(([campo, msgs]) => `${campo}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
-          .join('; ');
-        
-        if (erros) {
-          mensagemErro = `Erro nos dados: ${erros}`;
-        }
-      } else if (error.status === 0 || error.status === 503) {
-        mensagemErro = 'Erro de conexão com o servidor. Verifique sua internet e tente novamente.';
-      }
+
+      // Voltar para a página de detalhes do item
+      this.router.navigate(['/item-detail', this.itemId]);
+    } catch (error) {
+      console.error('Erro ao atualizar item:', error);
       
       const toast = await this.toastController.create({
-        message: mensagemErro,
-        duration: 5000,
+        message: 'Erro ao atualizar o item. Verifique os dados e tente novamente.',
+        duration: 3000,
         color: 'danger'
       });
       await toast.present();
     } finally {
-      loading.dismiss();
       this.enviando = false;
     }
   }
 
-  marcarCamposInvalidos() {
-    Object.keys(this.itemForm.controls).forEach(campo => {
-      const control = this.itemForm.get(campo);
-      if (control?.invalid) {
-        control.markAsTouched();
-      }
+  private marcarCamposComoTocados() {
+    Object.keys(this.itemForm.controls).forEach(key => {
+      this.itemForm.get(key)?.markAsTouched();
     });
-    
-    // Exibir alerta sobre campos obrigatórios
-    this.alertController.create({
-      header: 'Formulário incompleto',
-      message: 'Por favor, preencha todos os campos obrigatórios corretamente.',
-      buttons: ['OK']
-    }).then(alert => alert.present());
-  }
-
-  get formControls(): any {
-    return this.itemForm.controls;
   }
 
   cancelar() {
-    this.router.navigate(['/home']);
+    if (this.itemId) {
+      this.router.navigate(['/item-detail', this.itemId]);
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 }

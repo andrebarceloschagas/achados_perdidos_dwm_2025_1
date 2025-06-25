@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 """
-Views principais do sistema de Achados & Perdidos da UFT Palmas
+Views principais do Sistema de Achados & Perdidos
 """
 
 from django.contrib.auth import authenticate, login, logout
