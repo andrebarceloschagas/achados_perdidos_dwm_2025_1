@@ -72,11 +72,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
     
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return UserDetailSerializer
-        return UserSerializer
-    
     @action(detail=False, methods=['get'])
     def me(self, request):
         """Endpoint para obter informações do usuário logado"""

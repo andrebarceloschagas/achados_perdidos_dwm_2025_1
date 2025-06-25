@@ -12,6 +12,7 @@ import {
   logInOutline, 
   logOutOutline,
   personAddOutline,
+  peopleOutline,
   
   // Ações de formulário
   eyeOutline,
@@ -33,7 +34,12 @@ import {
   cameraOutline,
   locationOutline,
   calendarOutline,
-  timeOutline
+  timeOutline,
+  trophyOutline,
+  alertOutline,
+  checkmarkOutline,
+  people,
+  trophy
 } from 'ionicons/icons';
 
 export function registerIcons() {
@@ -71,6 +77,11 @@ export function registerIcons() {
     'camera-outline': cameraOutline,
     'location-outline': locationOutline,
     'calendar-outline': calendarOutline,
-    'time-outline': timeOutline
+    'time-outline': timeOutline,
+    'trophy-outline': trophyOutline,
+    'alert-outline': alertOutline,
+    'checkmark-outline': checkmarkOutline,
+    'people': people,
+    'trophy': trophy,
   });
 }

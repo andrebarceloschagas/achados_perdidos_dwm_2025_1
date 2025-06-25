@@ -34,8 +34,6 @@
     </ion-segment-button>
   </ion-segment>
 
-  <ion-searchbar [(ngModel)]="searchText" (ionInput)="buscarItens()" placeholder="Buscar itens..."></ion-searchbar>
-
   <div *ngIf="loading" class="ion-text-center ion-padding">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Carregando itens...</p>
@@ -67,13 +65,9 @@
         </ion-text>
 
         <div class="item-actions">
-          <ion-button fill="clear" size="small" (click)="verDetalhes(item.id)">
+          <ion-button expand="block" fill="clear" (click)="verDetalhes(item.id)">
             <ion-icon name="information-circle-outline" slot="start"></ion-icon>
-            Detalhes
-          </ion-button>
-          <ion-button fill="clear" size="small" (click)="contatarDono(item)" *ngIf="item.tipo === 'encontrado'">
-            <ion-icon name="mail-outline" slot="start"></ion-icon>
-            Contato
+            Ver Detalhes
           </ion-button>
         </div>
       </ion-card-content>

@@ -25,25 +25,9 @@ export interface Item {
 }
 
 export interface ItemDetail extends Item {
-  comentarios: Comentario[];
   contatos_count: number;
 }
 
-export interface Comentario {
-  id: number;
-  item: number;
-  usuario: number;
-  usuario_nome: string;
-  texto: string;
-  data_comentario: string;
-}
+// Interface Comentario removida
 
-export interface ContatoItem {
-  id: number;
-  item: number;
-  usuario_interessado: number;
-  usuario_interessado_nome: string;
-  mensagem: string;
-  data_contato: string;
-  visualizado: boolean;
-}
+// Interface ContatoItem removida

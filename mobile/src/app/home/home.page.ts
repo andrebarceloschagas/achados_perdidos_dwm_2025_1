@@ -22,7 +22,6 @@ import {
   IonSegment,
   IonSegmentButton,
   IonLabel,
-  IonSearchbar,
   IonSpinner,
   IonList,
   IonCard,
@@ -61,7 +60,6 @@ import { Item } from '../models/item.model';
     IonSegment,
     IonSegmentButton,
     IonLabel,
-    IonSearchbar,
     IonSpinner,
     IonList,
     IonCard,
@@ -83,7 +81,6 @@ export class HomePage implements OnInit {
   itens: Item[] = [];
   loading: boolean = false;
   tipoFiltro: string = 'todos';
-  searchText: string = '';
   
   constructor(
     private authService: AuthService,
@@ -106,17 +103,13 @@ export class HomePage implements OnInit {
     this.loading = true;
     
     let params: any = {
-      page: 1
+      page: 1,
+      ordering: '-data_postagem' // Ordenar por data de postagem, mais recentes primeiro
     };
     
     // Adicionar filtro por tipo se não for "todos"
     if (this.tipoFiltro !== 'todos') {
       params.tipo = this.tipoFiltro;
-    }
-    
-    // Adicionar texto de busca se existir
-    if (this.searchText && this.searchText.trim() !== '') {
-      params.q = this.searchText.trim();
     }
     
     try {
@@ -144,81 +137,18 @@ export class HomePage implements OnInit {
     this.carregarItens();
   }
   
-  buscarItens() {
-    this.carregarItens();
-  }
+  /* Método buscarItens removido */
   
   verDetalhes(itemId: number) {
-    // Navegar para a página de detalhes (ainda será implementada)
-    // this.router.navigate(['/item-detalhes', itemId]);
-    this.alertController.create({
-      header: 'Detalhes do Item',
-      message: 'Página de detalhes em implementação',
-      buttons: ['OK']
-    }).then(alert => alert.present());
+    this.router.navigate(['/item-detail', itemId]);
   }
   
-  async contatarDono(item: Item) {
-    const alert = await this.alertController.create({
-      header: 'Contatar dono',
-      message: `Deseja enviar uma mensagem para o dono de "${item.titulo}"?`,
-      inputs: [
-        {
-          name: 'mensagem',
-          type: 'textarea',
-          placeholder: 'Digite sua mensagem...'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Enviar',
-          handler: async (data) => {
-            if (data.mensagem && data.mensagem.trim() !== '') {
-              try {
-                const loading = await this.loadingController.create({
-                  message: 'Enviando mensagem...'
-                });
-                await loading.present();
-                
-                await firstValueFrom(this.itemService.createContato(item.id, data.mensagem));
-                
-                await loading.dismiss();
-                const toast = await this.toastController.create({
-                  message: 'Mensagem enviada com sucesso!',
-                  duration: 3000,
-                  color: 'success'
-                });
-                await toast.present();
-              } catch (error) {
-                console.error('Erro ao enviar mensagem:', error);
-                const toast = await this.toastController.create({
-                  message: 'Erro ao enviar mensagem. Tente novamente.',
-                  duration: 3000,
-                  color: 'danger'
-                });
-                await toast.present();
-              }
-            }
-          }
-        }
-      ]
-    });
-    
-    await alert.present();
-  }
+  /* Função de reportar item removida */
+  
+  /* Método contatarDono removido */
   
   criarNovoItem() {
-    // Navegar para a página de criação de item (ainda será implementada)
-    // this.router.navigate(['/criar-item']);
-    this.alertController.create({
-      header: 'Novo Item',
-      message: 'Página de criação de itens em implementação',
-      buttons: ['OK']
-    }).then(alert => alert.present());
+    this.router.navigate(['/criar-item']);
   }
   
   async logout() {

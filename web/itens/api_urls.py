@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from itens.api_views import (
     UserViewSet, ItemViewSet, ComentarioViewSet, ContatoItemViewSet
 )
+from itens.views_api import categorias_list, blocos_list
 from achados_perdidos_uft.auth_views import (
     CustomTokenObtainPairView, LogoutView, 
     revoke_token, revoke_all_tokens
@@ -33,6 +34,10 @@ urlpatterns = [
     # Gerenciamento de tokens
     path('token/revoke/<int:token_id>/', revoke_token, name='revoke_token'),
     path('token/revoke-all/', revoke_all_tokens, name='revoke_all_tokens'),
+    
+    # Endpoints para categorias e blocos
+    path('categorias/', categorias_list, name='categorias-list'),
+    path('blocos/', blocos_list, name='blocos-list'),
     
     # Rotas de API baseadas em viewsets
     path('', include(router.urls)),
