@@ -1,0 +1,173 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalhes do Item</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando detalhes...</p>
+  </div>
+
+  <!-- Mensagem de erro -->
+  <div *ngIf="erroCarga && !loading" class="ion-text-center ion-padding">
+    <ion-text color="danger">
+      <h5>Ocorreu um erro ao carregar o item</h5>
+      <p>Não foi possível obter os detalhes. Tente novamente mais tarde.</p>
+    </ion-text>
+    <ion-button color="primary" (click)="carregarItem()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Tentar novamente
+    </ion-button>
+  </div>
+
+  <!-- Detalhes de item -->
+  <ion-card *ngIf="item && !loading" class="item-card" [class.item-perdido]="item.tipo === 'perdido'"
+    [class.item-encontrado]="item.tipo === 'encontrado'">
+    <ion-img *ngIf="item.foto" [src]="item.foto" class="item-img"></ion-img>
+
+    <ion-card-header>
+      <div class="item-header">
+        <ion-badge [color]="item.tipo === 'perdido' ? 'danger' : 'success'" class="ion-margin-bottom">
+          <ion-icon [name]="item.tipo === 'perdido' ? 'alert-circle-outline' : 'checkmark-circle-outline'"></ion-icon>
+          {{ item.tipo_display }}
+        </ion-badge>
+
+        <ion-text color="medium" class="data-item">
+          <ion-icon name="time-outline"></ion-icon> {{ item.tempo_desde_postagem }}
+        </ion-text>
+      </div>
+
+      <ion-card-title>{{ item.titulo }}</ion-card-title>
+      <ion-card-content class="categoria-bloco">
+        <ion-chip color="tertiary" outline>
+          <ion-label>{{ item.categoria_display }}</ion-label>
+        </ion-chip>
+        <ion-chip color="secondary" outline>
+          <ion-icon name="location-outline"></ion-icon>
+          <ion-label>{{ getNomeLocalOcorrencia() }}</ion-label>
+        </ion-chip>
+      </ion-card-content>
+    </ion-card-header>
+
+    <ion-card-content>
+      <h3>Descrição</h3>
+      <p>{{ item.descricao }}</p>
+
+      <div class="info-section">
+        <h3>Informações Adicionais</h3>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <ion-text color="medium">Data de ocorrência:</ion-text>
+            </ion-col>
+            <ion-col size="6">
+              {{ item.data_ocorrencia | date:'dd/MM/yyyy' }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <ion-text color="medium">Data da postagem:</ion-text>
+            </ion-col>
+            <ion-col size="6">
+              {{ item.data_postagem | date:'dd/MM/yyyy' }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <ion-text color="medium">Status:</ion-text>
+            </ion-col>
+            <ion-col size="6">
+              {{ item.status_display }}
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="item.telefone_contato">
+            <ion-col size="6">
+              <ion-text color="medium">Telefone para contato:</ion-text>
+            </ion-col>
+            <ion-col size="6">
+              {{ item.telefone_contato }}
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="item.email_contato">
+            <ion-col size="6">
+              <ion-text color="medium">Email para contato:</ion-text>
+            </ion-col>
+            <ion-col size="6">
+              {{ item.email_contato }}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <ion-text color="medium">Visualizações:</ion-text>
+            </ion-col>
+            <ion-col size="6">
+              {{ item.visualizacoes }}
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+      <div class="action-buttons">
+        <ion-button *ngIf="podeContatarDono()" fill="outline" color="primary" (click)="contatarDono()">
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
+          Entrar em contato
+        </ion-button>
+        <ion-button fill="outline" color="danger" (click)="reportarItem()">
+          <ion-icon name="flag-outline" slot="start"></ion-icon>
+          Reportar
+        </ion-button>
+        <ion-button *ngIf="usuarioEhDono()" fill="solid" color="danger" (click)="excluirItem()">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
+          Excluir
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Comentários -->
+  <div *ngIf="item && item.comentarios && !loading" class="comentarios-section">
+    <h3>Comentários ({{ item.comentarios.length }})</h3>
+
+    <ion-card>
+      <ion-card-content>
+        <div class="adicionar-comentario">
+          <ion-item lines="full">
+            <ion-label position="floating">Adicione um comentário</ion-label>
+            <ion-input [(ngModel)]="comentarioTexto" placeholder="Escreva seu comentário"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="adicionarComentario()" [disabled]="!comentarioTexto.trim()">
+            <ion-icon name="send-outline" slot="start"></ion-icon>
+            Comentar
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-list *ngIf="item.comentarios.length > 0">
+      <ion-card *ngFor="let comentario of item.comentarios" class="comentario-card">
+        <ion-card-header>
+          <ion-item lines="none">
+            <ion-label>
+              <h3>{{ comentario.usuario_nome }}</h3>
+              <p>{{ comentario.data_comentario | date:'dd/MM/yyyy HH:mm' }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-card-header>
+        <ion-card-content>
+          {{ comentario.texto }}
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
+
+    <div *ngIf="item.comentarios.length === 0" class="ion-text-center ion-padding sem-comentarios">
+      <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
+      <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+    </div>
+  </div>
+</ion-content>

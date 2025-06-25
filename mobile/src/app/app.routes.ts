@@ -22,4 +22,14 @@ export const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full',
   },
+  {
+    path: 'criar-item',
+    loadComponent: () => import('./pages/criar-item/criar-item.page').then( m => m.CriarItemPage),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'item-detail/:id',
+    loadComponent: () => import('./pages/item-detail/item-detail.page').then( m => m.ItemDetailPage),
+    canActivate: [authGuard]
+  },
 ];

@@ -1,6 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
     <ion-title>
+      <ion-icon name="search-outline" style="margin-right: 8px;"></ion-icon>
       Achados & Perdidos UFT
     </ion-title>
     <ion-buttons slot="end">
@@ -74,6 +75,10 @@
           <ion-button fill="clear" size="small" (click)="contatarDono(item)" *ngIf="item.tipo === 'encontrado'">
             <ion-icon name="mail-outline" slot="start"></ion-icon>
             Contato
+          </ion-button>
+          <ion-button fill="clear" size="small" color="medium" (click)="reportarItem(item)">
+            <ion-icon name="flag-outline" slot="start"></ion-icon>
+            Reportar
           </ion-button>
         </div>
       </ion-card-content>
