@@ -100,3 +100,9 @@ ion-segment-button {
 .text-primary {
   color: var(--ion-color-primary);
 }
+
+// Estilo para garantir que o ícone do botão flutuante seja branco
+ion-fab-button ion-icon {
+  color: white;
+  font-size: 24px;
+}

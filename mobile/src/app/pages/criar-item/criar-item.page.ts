@@ -145,79 +145,63 @@ export class CriarItemPage implements OnInit {
 
   async selecionarImagem() {
     try {
-      // Verificar se estamos em um ambiente que suporta a API de câmera do Capacitor
-      const isNative = Capacitor.isPluginAvailable('Camera');
-      let imageData: Photo;
+      // Configuração da câmera para ambos os ambientes
+      const cameraOptions = {
+        quality: 90,
+        allowEditing: true,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Prompt
+      };
       
-      if (isNative) {
-        // Usar o plugin Camera em ambientes nativos
-        imageData = await Camera.getPhoto({
-          quality: 90,
-          allowEditing: true,
-          resultType: CameraResultType.DataUrl,
-          source: CameraSource.Prompt
-        });
-      } else {
-        // Fallback para navegadores web: usar método alternativo
+      // Verificar se estamos em um ambiente web
+      if (!Capacitor.isPluginAvailable('Camera') || Capacitor.getPlatform() === 'web') {
         // Mostrar alerta para o usuário sobre limitações no navegador
         await this.alertController.create({
           header: 'Atenção',
           message: 'Para a melhor experiência no upload de imagens, use o aplicativo móvel instalado.',
           buttons: ['OK']
         }).then(alert => alert.present());
-        
-        // Mesmo fluxo, mas com possíveis limitações
-        imageData = await Camera.getPhoto({
-          quality: 90,
-          allowEditing: true,
-          resultType: CameraResultType.DataUrl,
-          source: CameraSource.Prompt
-        });
       }
+      
+      // Obter imagem da câmera ou galeria
+      const imageData = await Camera.getPhoto(cameraOptions);
       
       if (imageData && imageData.dataUrl) {
         this.imagemPreview = imageData.dataUrl;
         
         try {
-          // Converter a imagem de base64 para File
+          // Método mais confiável de converter base64 para File
           const response = await fetch(imageData.dataUrl);
           const blob = await response.blob();
           
           // Usar timestamp para garantir nome único
           const fileName = new Date().getTime() + '.jpeg';
-          this.imagemArquivo = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
-        } catch (conversionError) {
-          console.error('Erro ao converter imagem:', conversionError);
+          this.imagemArquivo = new File([blob], fileName, { type: 'image/jpeg' });
           
-          // Fallback: tentar criar um blob diretamente do base64
-          try {
-            const base64Data = imageData.dataUrl.split(',')[1];
-            const byteCharacters = atob(base64Data);
-            const byteArrays = [];
-            
-            for (let i = 0; i < byteCharacters.length; i++) {
-              byteArrays.push(byteCharacters.charCodeAt(i));
-            }
-            
-            const byteArray = new Uint8Array(byteArrays);
-            const blob = new Blob([byteArray], {type: 'image/jpeg'});
-            
-            const fileName = new Date().getTime() + '.jpeg';
-            this.imagemArquivo = new File([blob], fileName, { type: 'image/jpeg' });
-          } catch (fallbackError) {
-            console.error('Fallback para conversão de imagem falhou:', fallbackError);
-            throw new Error('Não foi possível processar a imagem');
+          // Verificar tamanho do arquivo imediatamente
+          if (!this.verificarTamanhoImagem(this.imagemArquivo)) {
+            this.imagemPreview = null;
+            this.imagemArquivo = null;
           }
+        } catch (error) {
+          console.error('Erro ao processar imagem:', error);
+          await this.toastController.create({
+            message: 'Erro ao processar a imagem. Por favor, tente novamente.',
+            duration: 3000,
+            color: 'danger'
+          }).then(toast => toast.present());
+          
+          this.imagemPreview = null;
+          this.imagemArquivo = null;
         }
       }
     } catch (error) {
       console.error('Erro ao selecionar imagem:', error);
-      const toast = await this.toastController.create({
+      await this.toastController.create({
         message: 'Erro ao selecionar imagem. Por favor, tente novamente.',
         duration: 3000,
         color: 'danger'
-      });
-      await toast.present();
+      }).then(toast => toast.present());
     }
   }
 
@@ -226,8 +210,14 @@ export class CriarItemPage implements OnInit {
     this.imagemArquivo = null;
   }
 
-  // Função auxiliar para tratar erros de upload e limites de tamanho
+  /**
+   * Verifica se o tamanho da imagem está dentro do limite máximo permitido
+   * @param file Arquivo para verificar o tamanho
+   * @returns true se o arquivo está dentro do limite, false caso contrário
+   */
   verificarTamanhoImagem(file: File): boolean {
+    if (!file) return false;
+    
     // Limite de 5MB para fotos
     const limiteTamanho = 5 * 1024 * 1024; // 5MB em bytes
     
@@ -241,10 +231,23 @@ export class CriarItemPage implements OnInit {
       return false;
     }
     
+    // Verificar tipos de arquivo permitidos
+    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!tiposPermitidos.includes(file.type)) {
+      this.toastController.create({
+        message: 'Formato de imagem não suportado. Por favor, use JPEG ou PNG.',
+        duration: 3000,
+        color: 'danger'
+      }).then(toast => toast.present());
+      
+      return false;
+    }
+    
     return true;
   }
 
   async enviarItem() {
+    // Validação inicial do formulário
     if (this.itemForm.invalid) {
       this.marcarCamposInvalidos();
       return;
@@ -262,37 +265,33 @@ export class CriarItemPage implements OnInit {
       // Clone o valor do formulário para não alterar o original
       const itemData = {...this.itemForm.value};
       
-      // Formatar a data corretamente (pode ser necessário dependendo da API)
+      // Formatar a data corretamente para o formato esperado pela API
       if (itemData.data_ocorrencia) {
-        try {
-          const data = new Date(itemData.data_ocorrencia);
-          if (!isNaN(data.getTime())) {
-            itemData.data_ocorrencia = data.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-          }
-        } catch (error) {
-          console.error('Erro ao formatar data:', error);
-          // Manter o valor original se houver erro
+        const data = new Date(itemData.data_ocorrencia);
+        if (!isNaN(data.getTime())) {
+          itemData.data_ocorrencia = data.toISOString().split('T')[0]; // Formato YYYY-MM-DD
         }
       }
       
-      // Adicionar foto se existe e se passar na validação de tamanho
+      // Limpar campos vazios para evitar problemas no backend
+      Object.keys(itemData).forEach(key => {
+        if (itemData[key] === '' || itemData[key] === null || itemData[key] === undefined) {
+          delete itemData[key];
+        }
+      });
+      
+      // Adicionar foto se existir e estiver dentro do limite de tamanho
       if (this.imagemArquivo) {
         if (this.verificarTamanhoImagem(this.imagemArquivo)) {
           itemData.foto = this.imagemArquivo;
         } else {
-          // Se a imagem for muito grande, perguntar se quer continuar sem a imagem
           const continuar = await this.alertController.create({
             header: 'Imagem muito grande',
-            message: 'A imagem selecionada excede o tamanho limite. Deseja continuar sem a imagem?',
+            message: 'A imagem selecionada excede o tamanho limite de 5MB. Deseja continuar sem a imagem?',
             buttons: [
               {
                 text: 'Cancelar',
-                role: 'cancel',
-                handler: () => {
-                  loading.dismiss();
-                  this.enviando = false;
-                  return false;
-                }
+                role: 'cancel'
               },
               {
                 text: 'Continuar',
@@ -305,6 +304,8 @@ export class CriarItemPage implements OnInit {
           const { role } = await continuar.onDidDismiss();
           
           if (role === 'cancel') {
+            loading.dismiss();
+            this.enviando = false;
             return; // Interrompe o envio
           }
           // Continua sem a imagem
@@ -312,7 +313,7 @@ export class CriarItemPage implements OnInit {
       }
       
       // Enviar para a API
-      await firstValueFrom(this.itemService.createItem(itemData));
+      const response = await firstValueFrom(this.itemService.createItem(itemData));
       
       // Mostrar mensagem de sucesso
       const toast = await this.toastController.create({
@@ -324,12 +325,28 @@ export class CriarItemPage implements OnInit {
       
       // Voltar para a home
       this.router.navigate(['/home']);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao cadastrar item:', error);
       
+      // Tratamento mais detalhado do erro
+      let mensagemErro = 'Erro ao cadastrar item. Por favor, tente novamente.';
+      
+      if (error.status === 400 && error.error) {
+        // Tentar extrair mensagens específicas de erro do backend
+        const erros = Object.entries(error.error)
+          .map(([campo, msgs]) => `${campo}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+          .join('; ');
+        
+        if (erros) {
+          mensagemErro = `Erro nos dados: ${erros}`;
+        }
+      } else if (error.status === 0 || error.status === 503) {
+        mensagemErro = 'Erro de conexão com o servidor. Verifique sua internet e tente novamente.';
+      }
+      
       const toast = await this.toastController.create({
-        message: 'Erro ao cadastrar item. Por favor, tente novamente.',
-        duration: 3000,
+        message: mensagemErro,
+        duration: 5000,
         color: 'danger'
       });
       await toast.present();
@@ -361,11 +378,5 @@ export class CriarItemPage implements OnInit {
 
   cancelar() {
     this.router.navigate(['/home']);
-  }
-
-  // Método alternativo para criar arquivo de texto se o upload de imagem falhar
-  criarArquivoTexto(descricaoImagem: string): File {
-    const conteudo = `Descrição da imagem: ${descricaoImagem || 'Não fornecida'}\nData: ${new Date().toLocaleString()}`;
-    return new File([conteudo], 'descricao-imagem.txt', { type: 'text/plain' });
   }
 }
