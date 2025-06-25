@@ -101,6 +101,7 @@
             <ion-col size="6">
               {{ item.email_contato }}
             </ion-col>
+            
           </ion-row>
           <ion-row>
             <ion-col size="6">
@@ -114,14 +115,6 @@
       </div>
 
       <div class="action-buttons">
-        <ion-button *ngIf="podeContatarDono()" fill="outline" color="primary" (click)="contatarDono()">
-          <ion-icon name="mail-outline" slot="start"></ion-icon>
-          Entrar em contato
-        </ion-button>
-        <ion-button fill="outline" color="danger" (click)="reportarItem()">
-          <ion-icon name="flag-outline" slot="start"></ion-icon>
-          Reportar
-        </ion-button>
         <ion-button *ngIf="usuarioEhDono()" fill="solid" color="danger" (click)="excluirItem()">
           <ion-icon name="trash-outline" slot="start"></ion-icon>
           Excluir
@@ -129,45 +122,4 @@
       </div>
     </ion-card-content>
   </ion-card>
-
-  <!-- Comentários -->
-  <div *ngIf="item && item.comentarios && !loading" class="comentarios-section">
-    <h3>Comentários ({{ item.comentarios.length }})</h3>
-
-    <ion-card>
-      <ion-card-content>
-        <div class="adicionar-comentario">
-          <ion-item lines="full">
-            <ion-label position="floating">Adicione um comentário</ion-label>
-            <ion-input [(ngModel)]="comentarioTexto" placeholder="Escreva seu comentário"></ion-input>
-          </ion-item>
-          <ion-button expand="block" (click)="adicionarComentario()" [disabled]="!comentarioTexto.trim()">
-            <ion-icon name="send-outline" slot="start"></ion-icon>
-            Comentar
-          </ion-button>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-    <ion-list *ngIf="item.comentarios.length > 0">
-      <ion-card *ngFor="let comentario of item.comentarios" class="comentario-card">
-        <ion-card-header>
-          <ion-item lines="none">
-            <ion-label>
-              <h3>{{ comentario.usuario_nome }}</h3>
-              <p>{{ comentario.data_comentario | date:'dd/MM/yyyy HH:mm' }}</p>
-            </ion-label>
-          </ion-item>
-        </ion-card-header>
-        <ion-card-content>
-          {{ comentario.texto }}
-        </ion-card-content>
-      </ion-card>
-    </ion-list>
-
-    <div *ngIf="item.comentarios.length === 0" class="ion-text-center ion-padding sem-comentarios">
-      <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
-      <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
-    </div>
-  </div>
 </ion-content>

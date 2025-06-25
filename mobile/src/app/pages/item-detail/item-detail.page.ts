@@ -26,8 +26,6 @@ import {
   IonBadge,
   IonText,
   IonImg,
-  IonList,
-  IonItem,
   IonCol,
   IonRow,
   IonGrid,
@@ -63,8 +61,6 @@ import { AuthService } from '../../services/auth.service';
     IonBadge,
     IonText,
     IonImg,
-    IonList,
-    IonItem,
     IonCol,
     IonRow,
     IonGrid,
@@ -76,7 +72,6 @@ export class ItemDetailPage implements OnInit {
   item: ItemDetail | null = null;
   loading = false;
   erroCarga = false;
-  comentarioTexto = '';
   currentUserId: number | null = null;
 
   constructor(
@@ -90,7 +85,6 @@ export class ItemDetailPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Get the current user
     this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.currentUserId = user.id;
@@ -133,136 +127,7 @@ export class ItemDetailPage implements OnInit {
     }
   }
 
-  async contatarDono() {
-    if (!this.item) return;
-
-    const alert = await this.alertController.create({
-      header: 'Contatar dono',
-      message: `Deseja enviar uma mensagem para o dono de "${this.item.titulo}"?`,
-      inputs: [
-        {
-          name: 'mensagem',
-          type: 'textarea',
-          placeholder: 'Digite sua mensagem...'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Enviar',
-          handler: async (data) => {
-            if (data.mensagem?.trim()) {
-              try {
-                const loading = await this.loadingController.create({
-                  message: 'Enviando mensagem...'
-                });
-                await loading.present();
-                
-                await firstValueFrom(this.itemService.createContato(this.item!.id, data.mensagem));
-                
-                loading.dismiss();
-                const toast = await this.toastController.create({
-                  message: 'Mensagem enviada com sucesso!',
-                  duration: 3000,
-                  color: 'success'
-                });
-                toast.present();
-              } catch (error) {
-                console.error('Erro ao enviar mensagem:', error);
-                this.showError('Erro ao enviar mensagem. Tente novamente.');
-              }
-            }
-          }
-        }
-      ]
-    });
-    
-    await alert.present();
-  }
-
-  async adicionarComentario() {
-    if (!this.item || !this.comentarioTexto.trim()) return;
-
-    try {
-      const loading = await this.loadingController.create({
-        message: 'Enviando comentário...',
-        spinner: 'crescent'
-      });
-      await loading.present();
-
-      await firstValueFrom(this.itemService.addComentario(this.item.id, this.comentarioTexto));
-      
-      // Limpar o campo de comentário
-      this.comentarioTexto = '';
-      
-      // Recarregar item para atualizar comentários
-      await this.carregarItem();
-      
-      loading.dismiss();
-      const toast = await this.toastController.create({
-        message: 'Comentário adicionado com sucesso!',
-        duration: 2000,
-        color: 'success'
-      });
-      toast.present();
-    } catch (error) {
-      console.error('Erro ao adicionar comentário:', error);
-      this.showError('Erro ao adicionar comentário. Tente novamente.');
-    }
-  }
-
-  async reportarItem() {
-    if (!this.item) return;
-
-    const alert = await this.alertController.create({
-      header: 'Reportar Item',
-      message: `Deseja reportar "${this.item.titulo}" como impróprio ou inadequado?`,
-      inputs: [
-        {
-          name: 'motivo',
-          type: 'textarea',
-          placeholder: 'Informe o motivo da denúncia'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Reportar',
-          handler: async (data) => {
-            if (data.motivo?.trim()) {
-              try {
-                const loading = await this.loadingController.create({
-                  message: 'Enviando denúncia...'
-                });
-                await loading.present();
-                
-                await firstValueFrom(this.itemService.reportarItem(this.item!.id, data.motivo));
-                
-                loading.dismiss();
-                const toast = await this.toastController.create({
-                  message: 'Item reportado com sucesso!',
-                  duration: 3000,
-                  color: 'success'
-                });
-                toast.present();
-              } catch (error) {
-                console.error('Erro ao reportar item:', error);
-                this.showError('Erro ao reportar item. Tente novamente.');
-              }
-            }
-          }
-        }
-      ]
-    });
-    
-    await alert.present();
-  }
+  /* Método contatarDono removido */
 
   getNomeLocalOcorrencia(): string {
     if (!this.item) return '';
@@ -289,10 +154,7 @@ export class ItemDetailPage implements OnInit {
     this.router.navigate(['/home']);
   }
 
-  podeContatarDono(): boolean {
-    if (!this.item) return false;
-    return this.item.tipo === 'encontrado';
-  }
+  /* Método podeContatarDono removido */
   
   usuarioEhDono(): boolean {
     if (!this.item || !this.currentUserId) return false;

@@ -22,7 +22,6 @@ import {
   IonSegment,
   IonSegmentButton,
   IonLabel,
-  IonSearchbar,
   IonSpinner,
   IonList,
   IonCard,
@@ -61,7 +60,6 @@ import { Item } from '../models/item.model';
     IonSegment,
     IonSegmentButton,
     IonLabel,
-    IonSearchbar,
     IonSpinner,
     IonList,
     IonCard,
@@ -83,7 +81,6 @@ export class HomePage implements OnInit {
   itens: Item[] = [];
   loading: boolean = false;
   tipoFiltro: string = 'todos';
-  searchText: string = '';
   
   constructor(
     private authService: AuthService,
@@ -115,11 +112,6 @@ export class HomePage implements OnInit {
       params.tipo = this.tipoFiltro;
     }
     
-    // Adicionar texto de busca se existir
-    if (this.searchText && this.searchText.trim() !== '') {
-      params.q = this.searchText.trim();
-    }
-    
     try {
       const response = await firstValueFrom(this.itemService.getItens(params));
       this.itens = response?.results || [];
@@ -145,120 +137,15 @@ export class HomePage implements OnInit {
     this.carregarItens();
   }
   
-  buscarItens() {
-    this.carregarItens();
-  }
+  /* Método buscarItens removido */
   
   verDetalhes(itemId: number) {
     this.router.navigate(['/item-detail', itemId]);
   }
   
-  // Função para reportar um item como impróprio
-  async reportarItem(item: Item) {
-    const alert = await this.alertController.create({
-      header: 'Reportar Item',
-      message: `Deseja reportar "${item.titulo}" como impróprio ou inadequado?`,
-      inputs: [
-        {
-          name: 'motivo',
-          type: 'textarea',
-          placeholder: 'Informe o motivo da denúncia'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Reportar',
-          handler: async (data) => {
-            if (data.motivo && data.motivo.trim() !== '') {
-              try {
-                const loading = await this.loadingController.create({
-                  message: 'Enviando denúncia...'
-                });
-                await loading.present();
-                
-                await firstValueFrom(this.itemService.reportarItem(item.id, data.motivo));
-                
-                await loading.dismiss();
-                const toast = await this.toastController.create({
-                  message: 'Item reportado com sucesso!',
-                  duration: 3000,
-                  color: 'success'
-                });
-                await toast.present();
-              } catch (error) {
-                console.error('Erro ao reportar item:', error);
-                const toast = await this.toastController.create({
-                  message: 'Erro ao reportar item. Tente novamente.',
-                  duration: 3000,
-                  color: 'danger'
-                });
-                await toast.present();
-              }
-            }
-          }
-        }
-      ]
-    });
-    
-    await alert.present();
-  }
+  /* Função de reportar item removida */
   
-  async contatarDono(item: Item) {
-    const alert = await this.alertController.create({
-      header: 'Contatar dono',
-      message: `Deseja enviar uma mensagem para o dono de "${item.titulo}"?`,
-      inputs: [
-        {
-          name: 'mensagem',
-          type: 'textarea',
-          placeholder: 'Digite sua mensagem...'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Enviar',
-          handler: async (data) => {
-            if (data.mensagem && data.mensagem.trim() !== '') {
-              try {
-                const loading = await this.loadingController.create({
-                  message: 'Enviando mensagem...'
-                });
-                await loading.present();
-                
-                await firstValueFrom(this.itemService.createContato(item.id, data.mensagem));
-                
-                await loading.dismiss();
-                const toast = await this.toastController.create({
-                  message: 'Mensagem enviada com sucesso!',
-                  duration: 3000,
-                  color: 'success'
-                });
-                await toast.present();
-              } catch (error) {
-                console.error('Erro ao enviar mensagem:', error);
-                const toast = await this.toastController.create({
-                  message: 'Erro ao enviar mensagem. Tente novamente.',
-                  duration: 3000,
-                  color: 'danger'
-                });
-                await toast.present();
-              }
-            }
-          }
-        }
-      ]
-    });
-    
-    await alert.present();
-  }
+  /* Método contatarDono removido */
   
   criarNovoItem() {
     this.router.navigate(['/criar-item']);

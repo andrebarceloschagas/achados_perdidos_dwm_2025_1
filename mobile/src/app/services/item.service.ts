@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Item, ItemDetail, Comentario, ContatoItem } from '../models/item.model';
+import { Item, ItemDetail } from '../models/item.model';
 
 @Injectable({
   providedIn: 'root'
@@ -106,25 +106,11 @@ export class ItemService {
     return this.http.delete(`${this.apiUrl}itens/${id}/`);
   }
 
-  // Adicionar um comentário a um item
-  addComentario(itemId: number, texto: string): Observable<Comentario> {
-    return this.http.post<Comentario>(`${this.apiUrl}comentarios/`, { item: itemId, texto });
-  }
+  /* Método addComentario removido */
 
-  // Enviar um contato para o dono do item
-  createContato(itemId: number, mensagem: string): Observable<ContatoItem> {
-    return this.http.post<ContatoItem>(`${this.apiUrl}contatos/`, { item: itemId, mensagem });
-  }
+  /* Método createContato removido */
   
-  // Obter contatos recebidos pelo usuário
-  getContatosRecebidos(): Observable<{count: number, results: ContatoItem[]}> {
-    return this.http.get<{count: number, results: ContatoItem[]}>(`${this.apiUrl}contatos/recebidos/`);
-  }
-
-  // Marcar um contato como visualizado
-  marcarContatoVisualizado(contatoId: number): Observable<ContatoItem> {
-    return this.http.patch<ContatoItem>(`${this.apiUrl}contatos/${contatoId}/`, { visualizado: true });
-  }
+  /* Métodos relacionados a contatos removidos */
 
   // Obter todas as categorias de itens
   getCategorias(): Observable<{id: string, nome: string}[]> {
@@ -146,35 +132,16 @@ export class ItemService {
     return this.http.post<Item>(`${this.apiUrl}itens/${itemId}/marcar_entregue/`, {});
   }
   
-  // Reportar um item como impróprio ou inadequado
-  reportarItem(itemId: number, motivo: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}itens/${itemId}/reportar/`, { motivo });
-  }
+  /* Método reportar removido */
   
-  // Obter comentários de um item específico
-  getComentariosItem(itemId: number): Observable<Comentario[]> {
-    return this.http.get<Comentario[]>(`${this.apiUrl}itens/${itemId}/comentarios/`);
-  }
-  
-  // Excluir um comentário
-  deleteComentario(comentarioId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}comentarios/${comentarioId}/`);
-  }
+  /* Métodos relacionados a comentários removidos */
   
   // Buscar itens similares a um item específico
   getItensSimilares(itemId: number): Observable<Item[]> {
     return this.http.get<Item[]>(`${this.apiUrl}itens/${itemId}/similares/`);
   }
   
-  // Obter contatos enviados pelo usuário
-  getContatosEnviados(): Observable<{count: number, results: ContatoItem[]}> {
-    return this.http.get<{count: number, results: ContatoItem[]}>(`${this.apiUrl}contatos/enviados/`);
-  }
-
-  // Excluir um contato
-  deleteContato(contatoId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}contatos/${contatoId}/`);
-  }
+  /* Métodos de contatos enviados removidos */
   
   // Filtrar itens por proximidade (considerando o bloco/localização)
   getItensProximos(bloco: string): Observable<{count: number, results: Item[]}> {
