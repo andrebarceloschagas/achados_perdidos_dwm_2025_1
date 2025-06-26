@@ -31,7 +31,6 @@ urlpatterns = [
     path('api/', include('itens.api_urls')),
 ]
 
-# Servir arquivos de media em desenvolvimento
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

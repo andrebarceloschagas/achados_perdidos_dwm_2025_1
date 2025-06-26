@@ -60,7 +60,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             last_name=last_name
         )
         
-        # Log de criação (para depuração)
+        # Log de criação
         import logging
         logger = logging.getLogger('achados_perdidos_uft')
         logger.info(f'Novo usuário API criado: {username} ({email})')
